@@ -9,7 +9,6 @@ namespace CalFrameFactory
 {
     public class FlatMan
     {
-        private string deviceId = null;
         private ASCOM.DriverAccess.CoverCalibrator device;
 
         public FlatMan()

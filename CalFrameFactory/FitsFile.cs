@@ -11,8 +11,6 @@ namespace CalFrameFactory
         byte[] dataUnit = new byte[2880];
         int bCount;
 
-        private UInt16[,] FITSArray;
-
         private List<string> fitsHdr = new List<string>();
         private UInt16[] fitsData = new UInt16[1];
         private UInt16[] fitsHist = new UInt16[256];

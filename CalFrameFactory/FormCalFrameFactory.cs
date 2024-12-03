@@ -37,6 +37,8 @@ namespace CalFrameFactory
 
         public static LogEvent StatusReportEvent;
 
+        #region Form Initialization
+
         public FormCalFrameFactory()
         {
             InitializeComponent();
@@ -243,6 +245,51 @@ namespace CalFrameFactory
                 LibraryDateSelectionBox.Value = (DateTime)latest;
         }
 
+        private void FlatsSubform()
+        {
+            Configuration cfg = new Configuration();
+            LightSource flatLightSource = cfg.FlatSource;
+            FlatControl = new FlatMan();
+
+            switch (flatLightSource)
+            {
+                case LightSource.lsNone:
+                    break;
+                case LightSource.lsDawn:
+                    SkyDawnSelect.Checked = true;
+                    break;
+                case LightSource.lsDusk:
+                    SkyDuskSelect.Checked = true;
+                    break;
+                case LightSource.lsFlatMan:
+                    DeviceIdLabel.Text = cfg.FlatPanelDeviceName;
+                    PanelSelect.Checked = true;
+                    break;
+                default:
+                    break;
+            }
+            if (cfg.FlatTargetADU != 0) { FlatsTargetADU.Value = cfg.FlatTargetADU; }
+            else cfg.FlatTargetADU = (int)FlatsTargetADU.Value;
+            if (cfg.FlatCount != 0)
+                FlatsCountBox.Value = cfg.FlatCount;
+            else
+                cfg.FlatCount = (int)FlatsCountBox.Value;
+            if (cfg.FlatInitialBrightness != 0)
+                FlatManBrightnessNum.Value = cfg.FlatInitialBrightness;
+            else
+                cfg.FlatInitialBrightness = (int)FlatManBrightnessNum.Value;
+            if (cfg.FlatInitialExposure != 0)
+                FlatManExposureNum.Value = (decimal)cfg.FlatInitialExposure;
+            else
+                cfg.FlatInitialExposure = (int)FlatManExposureNum.Value;
+            if (cfg.IsPortableFlatMan)
+                FlatManManualSetupCheckbox.Checked = cfg.IsPortableFlatMan;
+            else
+                cfg.IsPortableFlatMan = FlatManManualSetupCheckbox.Checked;
+        }
+
+        #endregion
+
         #region commands
 
         private void StartButton_Click(object sender, EventArgs e)
@@ -313,7 +360,7 @@ namespace CalFrameFactory
 
         #endregion
 
-        #region operations
+        #region TSX Operations
 
         private void SetBinning(string binning)
         {
@@ -395,69 +442,6 @@ namespace CalFrameFactory
             FlatsCountBox.ForeColor = Color.Green;
         }
 
-        private void DarkFrameLoop(int reps, double exposure)
-        {
-            // This is the repeat loop for a given exposure repetitions
-            Configuration cfg = new Configuration();
-            totalreps = (int)DarksCountBox.Value;
-            // Change the form count box color
-            DarksCountBox.ForeColor = Color.DarkRed;
-            // Set the count on the form
-            for (int i = 0; i < reps; i++)
-            {
-                LogEvent lg = new LogEvent();
-                lg.LogIt("Imaging Dark # " + i.ToString() + " at " + cfg.Binning.ToString() + " binning for " + exposure.ToString() + " seconds");
-                ImageDark(exposure);
-                if (abortflag)
-                {
-                    return;
-                }
-                // Decrement count
-                DarksCountBox.Value -= 1;
-            }
-            DarksCountBox.Value = (decimal)totalreps;
-            // Change the form count box color
-            DarksCountBox.ForeColor = Color.Green;
-            return;
-        }
-
-        private void ImageDark(double exposure)
-        {
-            // Take a dark image at the given exposure length and binning at the temperature
-            // assumes that binning and xxx have already been set correctly
-
-            // Image and save dark frames
-            // Turn on autosave
-            // Set exposure length
-            // Set for Dark frame type
-            // Set for 0 second delay
-            // Set for no image reduction
-            // Set for asynchronous execution
-            // For the number of repetions:
-            // Start exposure and wait until completed or aborted
-            // Upon completion, store the image file in the library 
-            // Clean up mess and return
-            ccdsoftCamera tsx_cc = new ccdsoftCamera();
-            tsx_cc.ExposureTime = exposure;
-            // tsx_cc.ExposureTime = exposure
-            tsx_cc.Frame = TheSky64Lib.ccdsoftImageFrame.cdDark;
-            tsx_cc.Delay = 0;
-            tsx_cc.Asynchronous = 0; ;
-            tsx_cc.ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone;
-            tsx_cc.TakeImage();
-            while (tsx_cc.State == TheSky64Lib.ccdsoftCameraState.cdStateTakePicture)
-            {
-                System.Windows.Forms.Application.DoEvents();
-                if (abortflag)
-                {
-                    tsx_cc.Abort();
-                    return;
-                }
-                System.Threading.Thread.Sleep(1000);
-            }
-            CalDB.DarkImageStore();
-        }
-
         private void BiasFrameLoop(int reps)
         {
             // This is the repeat loop for a given exposure repetitions
@@ -526,6 +510,69 @@ namespace CalFrameFactory
             return;
         }
 
+        private void DarkFrameLoop(int reps, double exposure)
+        {
+            // This is the repeat loop for a given exposure repetitions
+            Configuration cfg = new Configuration();
+            totalreps = (int)DarksCountBox.Value;
+            // Change the form count box color
+            DarksCountBox.ForeColor = Color.DarkRed;
+            // Set the count on the form
+            for (int i = 0; i < reps; i++)
+            {
+                LogEvent lg = new LogEvent();
+                lg.LogIt("Imaging Dark # " + i.ToString() + " at " + cfg.Binning.ToString() + " binning for " + exposure.ToString() + " seconds");
+                ImageDark(exposure);
+                if (abortflag)
+                {
+                    return;
+                }
+                // Decrement count
+                DarksCountBox.Value -= 1;
+            }
+            DarksCountBox.Value = (decimal)totalreps;
+            // Change the form count box color
+            DarksCountBox.ForeColor = Color.Green;
+            return;
+        }
+
+        private void ImageDark(double exposure)
+        {
+            // Take a dark image at the given exposure length and binning at the temperature
+            // assumes that binning and xxx have already been set correctly
+
+            // Image and save dark frames
+            // Turn on autosave
+            // Set exposure length
+            // Set for Dark frame type
+            // Set for 0 second delay
+            // Set for no image reduction
+            // Set for asynchronous execution
+            // For the number of repetions:
+            // Start exposure and wait until completed or aborted
+            // Upon completion, store the image file in the library 
+            // Clean up mess and return
+            ccdsoftCamera tsx_cc = new ccdsoftCamera();
+            tsx_cc.ExposureTime = exposure;
+            // tsx_cc.ExposureTime = exposure
+            tsx_cc.Frame = TheSky64Lib.ccdsoftImageFrame.cdDark;
+            tsx_cc.Delay = 0;
+            tsx_cc.Asynchronous = 0; ;
+            tsx_cc.ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone;
+            tsx_cc.TakeImage();
+            while (tsx_cc.State == TheSky64Lib.ccdsoftCameraState.cdStateTakePicture)
+            {
+                System.Windows.Forms.Application.DoEvents();
+                if (abortflag)
+                {
+                    tsx_cc.Abort();
+                    return;
+                }
+                System.Threading.Thread.Sleep(1000);
+            }
+            CalDB.DarkImageStore();
+        }
+
         private void PanelFlatFrameLoop(int reps, List<Filters.ActiveFilter> afList)
         {
             // This is the repeat loop for a given exposure repetitions
@@ -583,7 +630,6 @@ namespace CalFrameFactory
             double tgtADU = cfg.FlatTargetADU;
             int MinADUVal = (int)(tgtADU * 0.8);
             int MaxADUVal = (int)(tgtADU * 1.2);
-            int avgADU = 0;
 
             foreach (Filters.ActiveFilter af in afList)
             {
@@ -800,60 +846,40 @@ namespace CalFrameFactory
             return (int)Math.Min(60, (currentExposure * (targetADU / currentADU)));
         }
 
-        private void FlatsSubform()
+        public bool CloseEnough(double testval, double targetval, double percentnear)
         {
-            Configuration cfg = new Configuration();
-            LightSource flatLightSource = cfg.FlatSource;
-            FlatControl = new FlatMan();
+            //Cute little method for determining if a value is withing a certain percentatge of
+            // another value.
+            //testval is the value under consideration
+            //targetval is the value to be tested against
+            //npercentnear is how close (in percent of target val, i.e. x100) the two need to be within to test true
+            // otherwise returns false
 
-            switch (flatLightSource)
+            if ((Math.Abs(targetval - testval)) <= (Math.Abs((targetval * percentnear / 100))))
+            { return true; }
+            else
+            { return false; }
+        }
+
+        private bool WaitImaging()
+        {
+            ccdsoftCamera tsxc = new ccdsoftCamera();
+            while (tsxc.State == TheSky64Lib.ccdsoftCameraState.cdStateTakePicture)
             {
-                case LightSource.lsNone:
-                    break;
-                case LightSource.lsDawn:
-                    SkyDawnSelect.Checked = true;
-                    break;
-                case LightSource.lsDusk:
-                    SkyDuskSelect.Checked = true;
-                    break;
-                case LightSource.lsFlatMan:
-                    DeviceIdLabel.Text = cfg.FlatPanelDeviceName;
-                    PanelSelect.Checked = true;
-                    break;
-                default:
-                    break;
+                System.Windows.Forms.Application.DoEvents();
+                if (abortflag)
+                {
+                    tsxc.Abort();
+                    return false;
+                }
+                System.Threading.Thread.Sleep(1000);
             }
-            if (cfg.FlatTargetADU != 0) { FlatsTargetADU.Value = cfg.FlatTargetADU; }
-            else cfg.FlatTargetADU = (int)FlatsTargetADU.Value;
-            if (cfg.FlatCount != 0)
-                FlatsCountBox.Value = cfg.FlatCount;
-            else
-                cfg.FlatCount = (int)FlatsCountBox.Value;
-            if (cfg.FlatInitialBrightness != 0)
-                FlatManBrightnessNum.Value = cfg.FlatInitialBrightness;
-            else
-                cfg.FlatInitialBrightness = (int)FlatManBrightnessNum.Value;
-            if (cfg.FlatInitialExposure != 0)
-                FlatManExposureNum.Value = (decimal)cfg.FlatInitialExposure;
-            else
-                cfg.FlatInitialExposure = (int)FlatManExposureNum.Value;
-            if (cfg.IsPortableFlatMan)
-                FlatManManualSetupCheckbox.Checked = cfg.IsPortableFlatMan;
-            else
-                cfg.IsPortableFlatMan = FlatManManualSetupCheckbox.Checked;
+            return true;
         }
 
         #endregion
 
-        #region button commands
-        private void ChooseButton_Click(object sender, EventArgs e)
-        {
-            Configuration cfg = new Configuration();
-            cfg.FlatPanelDeviceName = null;
-            cfg.FlatPanelDeviceName = FlatControl.CreateFlatManDevice();
-            DeviceIdLabel.Text = cfg.FlatPanelDeviceName;
-            //ChooseButton.Enabled = FlatDev.IsConnected;
-        }
+        #region general configuration
 
         private void ImageFolderButton_Click(object sender, EventArgs e)
         {
@@ -869,6 +895,170 @@ namespace CalFrameFactory
                     }
                 }
             }
+        }
+
+        private void CCDTempBox_ValueChanged(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            cfg.Temperature = (int)CCDTempBox.Value;
+        }
+
+        private void StayOnTopBox_CheckedChanged(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            if (StayOnTopBox.Checked)
+                TopMost = true;
+            else
+                TopMost = false;
+            cfg.StayOnTop = TopMost;
+        }
+
+        #endregion 
+
+        #region binning
+
+        private void binningButton1x1_CheckedChanged(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            if (binningButton1x1.Checked)
+                cfg.Binning = "1X1";
+        }
+
+        private void binningButton2x2_CheckedChanged(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            if (binningButton2x2.Checked)
+                cfg.Binning = "2X2";
+        }
+
+        private void binningButton3x3_CheckedChanged(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            if (binningButton3x3.Checked)
+                cfg.Binning = "3X3";
+        }
+
+        private void binningButton4x4_CheckedChanged(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            if (binningButton4x4.Checked)
+                cfg.Binning = "4X4";
+        }
+
+        #endregion 
+
+        #region bias frames
+
+        private void BiasCountBox_ValueChanged(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            cfg.BiasCount = (int)BiasCountBox.Value;
+        }
+
+        #endregion
+
+        #region dark frames
+
+        public void SaveDarksExposures(int exp)
+        {
+            Configuration cfg = new Configuration();
+            List<int> dList = cfg.DarkExposures;
+
+            if (!dList.Contains(exp))
+            {
+                dList.Add(exp);
+                cfg.DarkExposures = dList;
+            }
+        }
+
+        public void ClearDarksExposures(int exp)
+        {
+            Configuration cfg = new Configuration();
+            List<int> dList = cfg.DarkExposures;
+
+            if (dList.Contains(exp))
+            {
+                dList.Remove(exp);
+                cfg.DarkExposures = dList;
+            }
+        }
+
+        private void DarksCountBox_ValueChanged(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            cfg.DarkCount = (int)DarksCountBox.Value;
+        }
+
+        private void Check1_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check3_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check10_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check30_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check60_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check90_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check120_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check180_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check240_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check300_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check360_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check480_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check540_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void Check600_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        private void CheckOther_CheckedChanged(object sender, EventArgs e) => CacheDarkSettings();
+
+        public void CacheDarkSettings()
+        {
+            if (Check1.Checked) SaveDarksExposures(1);
+            else ClearDarksExposures(1);
+            if (Check3.Checked) SaveDarksExposures(3);
+            else ClearDarksExposures(3);
+            if (Check10.Checked) SaveDarksExposures(10);
+            else ClearDarksExposures(10);
+            if (Check30.Checked) SaveDarksExposures(30);
+            else ClearDarksExposures(30);
+            if (Check120.Checked) SaveDarksExposures(120);
+            else ClearDarksExposures(120);
+            if (Check180.Checked) SaveDarksExposures(180);
+            else ClearDarksExposures(180);
+            if (Check240.Checked) SaveDarksExposures(240);
+            else ClearDarksExposures(240);
+            if (Check300.Checked) SaveDarksExposures(300);
+            else ClearDarksExposures(300);
+            if (Check360.Checked) SaveDarksExposures(360);
+            else ClearDarksExposures(360);
+            if (Check480.Checked) SaveDarksExposures(480);
+            else ClearDarksExposures(480);
+            if (Check540.Checked) SaveDarksExposures(540);
+            else ClearDarksExposures(540);
+            if (Check600.Checked) SaveDarksExposures(600);
+            else ClearDarksExposures(600);
+            if (CheckOther.Checked) SaveDarksExposures((int)OtherExposureBox.Value);
+            else ClearDarksExposures((int)OtherExposureBox.Value);
+        }
+
+        #endregion
+
+        #region flat frames
+
+        private void ChooseButton_Click(object sender, EventArgs e)
+        {
+            Configuration cfg = new Configuration();
+            cfg.FlatPanelDeviceName = null;
+            cfg.FlatPanelDeviceName = FlatControl.CreateFlatManDevice();
+            DeviceIdLabel.Text = cfg.FlatPanelDeviceName;
         }
 
         private void FlatManBrightnessNum_ValueChanged(object sender, EventArgs e)
@@ -908,260 +1098,6 @@ namespace CalFrameFactory
             foreach (string fName in FlatFilterListBox.CheckedItems)
                 fList.Add(new Filters.ActiveFilter { FilterName = fName, FilterIndex = (int)Filters.LookUpFilterIndex(fName) });
             cfg.FlatFilters = fList;
-        }
-
-        private void CCDTempBox_ValueChanged(object sender, EventArgs e)
-        {
-            Configuration cfg = new Configuration();
-            cfg.Temperature = (int)CCDTempBox.Value;
-        }
-
-        private void BiasCountBox_ValueChanged(object sender, EventArgs e)
-        {
-            Configuration cfg = new Configuration();
-            cfg.BiasCount = (int)BiasCountBox.Value;
-        }
-
-        private void DarksCountBox_ValueChanged(object sender, EventArgs e)
-        {
-            Configuration cfg = new Configuration();
-            cfg.DarkCount = (int)DarksCountBox.Value;
-        }
-
-        private void binningButton1x1_CheckedChanged(object sender, EventArgs e)
-        {
-            Configuration cfg = new Configuration();
-            if (binningButton1x1.Checked)
-                cfg.Binning = "1X1";
-        }
-
-        private void binningButton2x2_CheckedChanged(object sender, EventArgs e)
-        {
-            Configuration cfg = new Configuration();
-            if (binningButton2x2.Checked)
-                cfg.Binning = "2X2";
-        }
-
-        private void binningButton3x3_CheckedChanged(object sender, EventArgs e)
-        {
-            Configuration cfg = new Configuration();
-            if (binningButton3x3.Checked)
-                cfg.Binning = "3X3";
-        }
-
-        private void binningButton4x4_CheckedChanged(object sender, EventArgs e)
-        {
-            Configuration cfg = new Configuration();
-            if (binningButton4x4.Checked)
-                cfg.Binning = "4X4";
-        }
-
-        private void StayOnTopBox_CheckedChanged(object sender, EventArgs e)
-        {
-            Configuration cfg = new Configuration();
-            if (StayOnTopBox.Checked)
-                TopMost = true;
-            else
-                TopMost = false;
-            cfg.StayOnTop = TopMost;
-        }
-
-        #endregion
-
-        public void CacheDarkSettings()
-        {
-            if (Check1.Checked) SaveDarksExposures(1);
-            else ClearDarksExposures(1);
-            if (Check3.Checked) SaveDarksExposures(3);
-            else ClearDarksExposures(3);
-            if (Check10.Checked) SaveDarksExposures(10);
-            else ClearDarksExposures(10);
-            if (Check30.Checked) SaveDarksExposures(30);
-            else ClearDarksExposures(30);
-            if (Check120.Checked) SaveDarksExposures(120);
-            else ClearDarksExposures(120);
-            if (Check180.Checked) SaveDarksExposures(180);
-            else ClearDarksExposures(180);
-            if (Check240.Checked) SaveDarksExposures(240);
-            else ClearDarksExposures(240);
-            if (Check300.Checked) SaveDarksExposures(300);
-            else ClearDarksExposures(300);
-            if (Check360.Checked) SaveDarksExposures(360);
-            else ClearDarksExposures(360);
-            if (Check480.Checked) SaveDarksExposures(480);
-            else ClearDarksExposures(480);
-            if (Check540.Checked) SaveDarksExposures(540);
-            else ClearDarksExposures(540);
-            if (Check600.Checked) SaveDarksExposures(600);
-            else ClearDarksExposures(600);
-            if (CheckOther.Checked) SaveDarksExposures((int)OtherExposureBox.Value);
-            else ClearDarksExposures((int)OtherExposureBox.Value);
-        }
-
-        public bool CloseEnough(double testval, double targetval, double percentnear)
-        {
-            //Cute little method for determining if a value is withing a certain percentatge of
-            // another value.
-            //testval is the value under consideration
-            //targetval is the value to be tested against
-            //npercentnear is how close (in percent of target val, i.e. x100) the two need to be within to test true
-            // otherwise returns false
-
-            if ((Math.Abs(targetval - testval)) <= (Math.Abs((targetval * percentnear / 100))))
-            { return true; }
-            else
-            { return false; }
-        }
-
-        private bool WaitImaging()
-        {
-            ccdsoftCamera tsxc = new ccdsoftCamera();
-            while (tsxc.State == TheSky64Lib.ccdsoftCameraState.cdStateTakePicture)
-            {
-                System.Windows.Forms.Application.DoEvents();
-                if (abortflag)
-                {
-                    tsxc.Abort();
-                    return false;
-                }
-                System.Threading.Thread.Sleep(1000);
-            }
-            return true;
-        }
-
-        public void LogReportUpdate_Handler(object sender, LogEvent.LogEventArgs e)
-        {
-            StatusBox.AppendText(e.LogEntry + "\r\n");
-            this.Show();
-            return;
-        }
-
-        #region dark exposures
-
-        public void SaveDarksExposures(int exp)
-        {
-            Configuration cfg = new Configuration();
-            List<int> dList = cfg.DarkExposures;
-
-            if (!dList.Contains(exp))
-            {
-                dList.Add(exp);
-                cfg.DarkExposures = dList;
-            }
-        }
-
-        public void ClearDarksExposures(int exp)
-        {
-            Configuration cfg = new Configuration();
-            List<int> dList = cfg.DarkExposures;
-
-            if (dList.Contains(exp))
-            {
-                dList.Remove(exp);
-                cfg.DarkExposures = dList;
-            }
-        }
-
-        private void Check1_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check3_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check10_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check30_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check60_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check90_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check120_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check180_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check240_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check300_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check360_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check480_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check540_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void Check600_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-        private void CheckOther_CheckedChanged(object sender, EventArgs e)
-        {
-            CacheDarkSettings();
-        }
-
-
-
-        #endregion
-
-        private void FMLButton_Click(object sender, EventArgs e)
-        {
-            FlatControl.Light = true;
-        }
-
-        private void PlusButton_Click(object sender, EventArgs e)
-        {
-            LogEvent lg = new LogEvent();
-            Configuration cfg = new Configuration();
-            FlatControl.Bright = cfg.FlatInitialBrightness + 10;
-            cfg.FlatInitialBrightness += 10;
-            lg.LogIt("FM Brightness = " + cfg.FlatInitialBrightness);
-        }
-
-        private void MinusButton_Click(object sender, EventArgs e)
-        {
-            LogEvent lg = new LogEvent();
-            Configuration cfg = new Configuration();
-            FlatControl.Bright = cfg.FlatInitialBrightness - 10;
-            cfg.FlatInitialBrightness -= 10;
-            lg.LogIt("FM Brightness = " + cfg.FlatInitialBrightness);
         }
 
         private void SkyDawnSelect_CheckedChanged(object sender, EventArgs e)
@@ -1290,6 +1226,19 @@ namespace CalFrameFactory
                     }
             }
         }
+
+        #endregion
+
+        #region Utility
+
+        public void LogReportUpdate_Handler(object sender, LogEvent.LogEventArgs e)
+        {
+            StatusBox.AppendText(e.LogEntry + "\r\n");
+            this.Show();
+            return;
+        }
+
+        #endregion
 
     }
 }
