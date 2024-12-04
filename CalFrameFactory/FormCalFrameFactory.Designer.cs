@@ -90,6 +90,7 @@
             this.ImagePathField = new System.Windows.Forms.Label();
             this.ReferencePointBox = new System.Windows.Forms.CheckBox();
             this.label8 = new System.Windows.Forms.Label();
+            this.AutoskyCheckBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.OtherExposureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DarksCountBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.BiasCountBox)).BeginInit();
@@ -788,6 +789,7 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.AutoskyCheckBox);
             this.groupBox5.Controls.Add(this.label7);
             this.groupBox5.Controls.Add(this.SkyTimePicker);
             this.groupBox5.ForeColor = System.Drawing.Color.White;
@@ -801,7 +803,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(38, 16);
+            this.label7.Location = new System.Drawing.Point(91, 17);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(55, 13);
             this.label7.TabIndex = 1;
@@ -810,7 +812,7 @@
             // SkyTimePicker
             // 
             this.SkyTimePicker.Format = System.Windows.Forms.DateTimePickerFormat.Time;
-            this.SkyTimePicker.Location = new System.Drawing.Point(128, 13);
+            this.SkyTimePicker.Location = new System.Drawing.Point(153, 13);
             this.SkyTimePicker.Name = "SkyTimePicker";
             this.SkyTimePicker.Size = new System.Drawing.Size(110, 20);
             this.SkyTimePicker.TabIndex = 0;
@@ -899,6 +901,17 @@
             this.label8.Size = new System.Drawing.Size(60, 13);
             this.label8.TabIndex = 60;
             this.label8.Text = "Stash Date";
+            // 
+            // AutoskyCheckBox
+            // 
+            this.AutoskyCheckBox.AutoSize = true;
+            this.AutoskyCheckBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.AutoskyCheckBox.Location = new System.Drawing.Point(9, 16);
+            this.AutoskyCheckBox.Name = "AutoskyCheckBox";
+            this.AutoskyCheckBox.Size = new System.Drawing.Size(63, 17);
+            this.AutoskyCheckBox.TabIndex = 2;
+            this.AutoskyCheckBox.Text = "Autorun";
+            this.AutoskyCheckBox.UseVisualStyleBackColor = true;
             // 
             // FormCalFrameFactory
             // 
@@ -1018,6 +1031,7 @@
         private System.Windows.Forms.DateTimePicker SkyTimePicker;
         private System.Windows.Forms.CheckBox ReferencePointBox;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.CheckBox AutoskyCheckBox;
     }
 }
 

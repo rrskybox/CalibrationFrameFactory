@@ -31,6 +31,9 @@ namespace CalFrameFactory
         public int binningYstate;
         public double exposurestate;
         public double settempstate;
+        public List<int> dExpList;
+        public int[] dCount;
+
         // Save folder structure pointer
         public CalibrationFileManagement CalDB;
         public FlatMan FlatControl;
@@ -407,52 +410,63 @@ namespace CalFrameFactory
 
             SetBinning(cfg.Binning);
 
-            //Bias Frames
-            if (BiasCountBox.Value > 0)
-            {
-                binningButton1x1.ForeColor = Color.DarkRed;
-                BiasFrameLoop((int)BiasCountBox.Value);
-                binningButton1x1.ForeColor = Color.Green;
-            }
-            //Dark Frames
-            List<int> dList = cfg.DarkExposures;
-            foreach (int d in dList)
-            {
-                DarkCheckBoxToggle(d, true);
-                DarkFrameLoop(d, cfg.DarkCount);
-                DarkCheckBoxToggle(d, false);
-            }
+            //Run a loop such that bias/darks are captured until the sky flats (dawn/dusk) start time.
+            //  Then run the flats as long as possible,
+            //  Then return to finish Bias and Darks
 
-            //Flat Frames
-            FlatsCountBox.ForeColor = Color.Red;
-
-            if (ReferencePointBox.Checked)
+            //Make list for dark exposures and their count
+            dExpList = cfg.DarkExposures;
+            dCount = new int[dExpList.Count];
+            for (int i = 0; i < dExpList.Count; i++)
+                dCount[i] = (int)DarksCountBox.Value;
+            do
             {
-                lg.LogIt("Slewing telescope to MyFlatField reference point and parking");
-                FlatControl.FlatManStage();
-            }
+                //Bias Frames if some left to do
+                if ((int)BiasCountBox.Value > 0)
+                {
+                    binningButton1x1.ForeColor = Color.Red;
+                    BiasFrameLoop();
+                    binningButton1x1.ForeColor = Color.Green;
+                }
+                //Dark Frames if some left to do
+                DarksCountBox.ForeColor = Color.Red;
+                for (int i = 0; i < dExpList.Count; i++)
+                {
+                    DarkCheckBoxToggle(dExpList[i], true);
+                    DarkFrameLoop(i);
+                    DarkCheckBoxToggle(dExpList[i], false);
+                }
 
-            if (PanelSelect.Checked)
-            {
-                PanelFlatFrameLoop((int)FlatsCountBox.Value, cfg.FlatFilters);
-            }
-            else
-                SkyFlatFrameLoop((int)FlatsCountBox.Value, cfg.FlatFilters);
+                //Flat Frames until done or exposure too long (i.e. count may not go to zero)
+                FlatsCountBox.ForeColor = Color.Red;
+
+                if (ReferencePointBox.Checked)
+                {
+                    lg.LogIt("Slewing telescope to MyFlatField reference point and parking");
+                    FlatControl.FlatManStage();
+                }
+
+                if (PanelSelect.Checked)
+                {
+                    PanelFlatFrameLoop((int)FlatsCountBox.Value, cfg.FlatFilters);
+                }
+                else
+                    SkyFlatFrameLoop((int)FlatsCountBox.Value, cfg.FlatFilters);
+            } while (BiasCountBox.Value > 0 && DarksCountBox.Value > 0);
 
             FlatsCountBox.ForeColor = Color.Green;
         }
 
-        private void BiasFrameLoop(int reps)
+        private void BiasFrameLoop()
         {
             // This is the repeat loop for a given exposure repetitions
             Configuration cfg = new Configuration();
             LogEvent lg = new LogEvent();
             const double biasexposure = 0.001d;
-            totalreps = (int)BiasCountBox.Value;
             // Change the form count box color
-            BiasCountBox.ForeColor = Color.DarkRed;
+            BiasCountBox.ForeColor = Color.Red;
             // Set the count on the form
-            for (int i = 0; i < reps; i++)
+            for (int i = 0; i < (int)BiasCountBox.Value; i++)
             {
                 lg.LogIt("Imaging Bias # " + i.ToString() + " at " + cfg.Binning.ToString() + " binning");
                 ImageBias(biasexposure);
@@ -461,9 +475,11 @@ namespace CalFrameFactory
                     return;
                 }
                 // Decrement count
-                BiasCountBox.Value -= 1m;
+                BiasCountBox.Value -= 1;
+                if (CheckSkyFlatStart(SkyTimePicker.Value))
+                    break;
             }
-            BiasCountBox.Value = (decimal)totalreps;
+            //BiasCountBox.Value = (decimal)totalreps;
             // Change the form count box color
             BiasCountBox.ForeColor = Color.Green;
             return;
@@ -510,27 +526,29 @@ namespace CalFrameFactory
             return;
         }
 
-        private void DarkFrameLoop(int reps, double exposure)
+        private void DarkFrameLoop(int dIndex)
         {
             // This is the repeat loop for a given exposure repetitions
             Configuration cfg = new Configuration();
-            totalreps = (int)DarksCountBox.Value;
+            int reps = dCount[dIndex];
             // Change the form count box color
             DarksCountBox.ForeColor = Color.DarkRed;
             // Set the count on the form
             for (int i = 0; i < reps; i++)
             {
                 LogEvent lg = new LogEvent();
-                lg.LogIt("Imaging Dark # " + i.ToString() + " at " + cfg.Binning.ToString() + " binning for " + exposure.ToString() + " seconds");
-                ImageDark(exposure);
+                lg.LogIt("Imaging Dark # " + i.ToString() + " at " + cfg.Binning.ToString() + " binning for " + dExpList[dIndex].ToString() + " seconds");
+                ImageDark(dExpList[dIndex]);
+                dCount[dIndex] -= 1;
                 if (abortflag)
                 {
                     return;
                 }
                 // Decrement count
-                DarksCountBox.Value -= 1;
+                if (CheckSkyFlatStart(SkyTimePicker.Value))
+                    break;
             }
-            DarksCountBox.Value = (decimal)totalreps;
+            //DarksCountBox.Value = (decimal)totalreps;
             // Change the form count box color
             DarksCountBox.ForeColor = Color.Green;
             return;
@@ -576,6 +594,9 @@ namespace CalFrameFactory
         private void PanelFlatFrameLoop(int reps, List<Filters.ActiveFilter> afList)
         {
             // This is the repeat loop for a given exposure repetitions
+            int MaxBrightness = 100;
+            int MinBrightness = 0;
+
             Configuration cfg = new Configuration();
             LogEvent lg = new LogEvent();
             totalreps = 0;
@@ -593,6 +614,11 @@ namespace CalFrameFactory
                 //Determine exposure
                 lg.LogIt("Adjusting flat panel brightness to achieve " + cfg.FlatTargetADU.ToString() + " at " + cfg.Binning.ToString() + " binning for " + Filters.LookUpFilterName(af.FilterIndex) + " filter");
                 double brightness = FlatManBrightnessCalibration(af.FilterIndex, cfg.FlatInitialExposure, cfg.FlatInitialBrightness, cfg.Binning, cfg.FlatTargetADU);
+                if ((brightness >= MaxBrightness) || (brightness <= MinBrightness))
+                {
+                    lg.LogIt("Necessary exposure is too short or too long.  Aborting Flat imaging");
+                    break;
+                }
                 cfg.FlatInitialBrightness = (int)brightness;
                 FlatsCountBox.Value = reps;
                 // Set the count on the form
@@ -610,8 +636,8 @@ namespace CalFrameFactory
                     ++totalreps;
                 }
             }
-            lg.LogIt("Generated " + totalreps.ToString() + " flat frames");
-            FlatsCountBox.Value = (decimal)reps;
+            lg.LogIt("**** Generated " + totalreps.ToString() + " panel flat frames ****");
+            //FlatsCountBox.Value = (decimal)reps;
             //If FlatMan has been chosen for flats, make sure the panel is turned off
             if (cfg.FlatSource == LightSource.lsFlatMan)
                 FlatControl.Light = false;
@@ -661,9 +687,19 @@ namespace CalFrameFactory
                     ++totalreps;
                 }
             }
-            lg.LogIt("Generated " + totalreps.ToString() + " flat frames");
-            FlatsCountBox.Value = (decimal)reps;
+            lg.LogIt("**** Generated " + totalreps.ToString() + " sky flat frames ****");
+            //FlatsCountBox.Value = (decimal)reps;
             return;
+        }
+
+        private bool CheckSkyFlatStart(DateTime skystarttime)
+        {
+            if (PanelSelect.Checked)
+                return false;
+            else if ((skystarttime > DateTime.Now) && (skystarttime < (DateTime.Now + TimeSpan.FromHours(3))))
+                return true;
+            else
+                return false;
         }
 
         private void ImageFlat(double exposure, int filter)
