@@ -17,7 +17,10 @@ namespace CalFrameFactory
             {
                 Application.Run(new FormCalFrameFactory());
             }
-            catch { };
+            catch (Exception ex )
+            {
+                MessageBox.Show(ex.Message);
+            };
         }
     }
 }

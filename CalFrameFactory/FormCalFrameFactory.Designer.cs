@@ -79,7 +79,9 @@
             this.FlatsGroup = new System.Windows.Forms.GroupBox();
             this.FlatFilterListBox = new System.Windows.Forms.CheckedListBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.ReferencePointButton = new System.Windows.Forms.Button();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.AutoskyCheckBox = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
             this.SkyTimePicker = new System.Windows.Forms.DateTimePicker();
             this.label6 = new System.Windows.Forms.Label();
@@ -88,9 +90,9 @@
             this.LibraryDateSelectionBox = new System.Windows.Forms.DateTimePicker();
             this.ImageFolderButton = new System.Windows.Forms.Button();
             this.ImagePathField = new System.Windows.Forms.Label();
-            this.ReferencePointBox = new System.Windows.Forms.CheckBox();
+            this.ReferencedCheckBox = new System.Windows.Forms.CheckBox();
             this.label8 = new System.Windows.Forms.Label();
-            this.AutoskyCheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
             ((System.ComponentModel.ISupportInitialize)(this.OtherExposureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DarksCountBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.BiasCountBox)).BeginInit();
@@ -108,6 +110,7 @@
             this.FlatsGroup.SuspendLayout();
             this.groupBox8.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            this.groupBox7.SuspendLayout();
             this.SuspendLayout();
             // 
             // OtherExposureBox
@@ -659,8 +662,10 @@
             // DeviceIdLabel
             // 
             this.DeviceIdLabel.AutoSize = true;
+            this.DeviceIdLabel.BackColor = System.Drawing.Color.White;
             this.DeviceIdLabel.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.DeviceIdLabel.Location = new System.Drawing.Point(6, 20);
+            this.DeviceIdLabel.ForeColor = System.Drawing.Color.Black;
+            this.DeviceIdLabel.Location = new System.Drawing.Point(8, 20);
             this.DeviceIdLabel.Name = "DeviceIdLabel";
             this.DeviceIdLabel.Size = new System.Drawing.Size(92, 14);
             this.DeviceIdLabel.TabIndex = 2;
@@ -751,7 +756,7 @@
             this.FlatsGroup.ForeColor = System.Drawing.Color.White;
             this.FlatsGroup.Location = new System.Drawing.Point(9, 212);
             this.FlatsGroup.Name = "FlatsGroup";
-            this.FlatsGroup.Size = new System.Drawing.Size(269, 75);
+            this.FlatsGroup.Size = new System.Drawing.Size(269, 72);
             this.FlatsGroup.TabIndex = 43;
             this.FlatsGroup.TabStop = false;
             this.FlatsGroup.Text = "Panel ";
@@ -769,6 +774,7 @@
             // 
             // groupBox8
             // 
+            this.groupBox8.Controls.Add(this.ReferencePointButton);
             this.groupBox8.Controls.Add(this.groupBox5);
             this.groupBox8.Controls.Add(this.groupBox6);
             this.groupBox8.Controls.Add(this.label6);
@@ -787,6 +793,19 @@
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Flat";
             // 
+            // ReferencePointButton
+            // 
+            this.ReferencePointButton.BackColor = System.Drawing.Color.SpringGreen;
+            this.ReferencePointButton.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ReferencePointButton.ForeColor = System.Drawing.Color.Black;
+            this.ReferencePointButton.Location = new System.Drawing.Point(13, 290);
+            this.ReferencePointButton.Name = "ReferencePointButton";
+            this.ReferencePointButton.Size = new System.Drawing.Size(96, 23);
+            this.ReferencePointButton.TabIndex = 47;
+            this.ReferencePointButton.Text = "Reference Point";
+            this.ReferencePointButton.UseVisualStyleBackColor = false;
+            this.ReferencePointButton.Click += new System.EventHandler(this.ReferencePointButton_Click);
+            // 
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.AutoskyCheckBox);
@@ -799,6 +818,17 @@
             this.groupBox5.TabIndex = 47;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Sky";
+            // 
+            // AutoskyCheckBox
+            // 
+            this.AutoskyCheckBox.AutoSize = true;
+            this.AutoskyCheckBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.AutoskyCheckBox.Location = new System.Drawing.Point(9, 16);
+            this.AutoskyCheckBox.Name = "AutoskyCheckBox";
+            this.AutoskyCheckBox.Size = new System.Drawing.Size(63, 17);
+            this.AutoskyCheckBox.TabIndex = 2;
+            this.AutoskyCheckBox.Text = "Autorun";
+            this.AutoskyCheckBox.UseVisualStyleBackColor = true;
             // 
             // label7
             // 
@@ -841,7 +871,7 @@
             // 
             this.CreateLibraryButton.BackColor = System.Drawing.Color.SpringGreen;
             this.CreateLibraryButton.ForeColor = System.Drawing.Color.Black;
-            this.CreateLibraryButton.Location = new System.Drawing.Point(47, 296);
+            this.CreateLibraryButton.Location = new System.Drawing.Point(46, 65);
             this.CreateLibraryButton.Name = "CreateLibraryButton";
             this.CreateLibraryButton.Size = new System.Drawing.Size(96, 30);
             this.CreateLibraryButton.TabIndex = 54;
@@ -852,7 +882,7 @@
             // LibraryDateSelectionBox
             // 
             this.LibraryDateSelectionBox.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.LibraryDateSelectionBox.Location = new System.Drawing.Point(79, 263);
+            this.LibraryDateSelectionBox.Location = new System.Drawing.Point(80, 32);
             this.LibraryDateSelectionBox.Name = "LibraryDateSelectionBox";
             this.LibraryDateSelectionBox.Size = new System.Drawing.Size(96, 20);
             this.LibraryDateSelectionBox.TabIndex = 55;
@@ -882,36 +912,38 @@
             this.ImagePathField.TabIndex = 57;
             this.ImagePathField.Text = "Image Path ";
             // 
-            // ReferencePointBox
+            // ReferencedCheckBox
             // 
-            this.ReferencePointBox.AutoSize = true;
-            this.ReferencePointBox.Location = new System.Drawing.Point(19, 50);
-            this.ReferencePointBox.Name = "ReferencePointBox";
-            this.ReferencePointBox.Size = new System.Drawing.Size(82, 17);
-            this.ReferencePointBox.TabIndex = 59;
-            this.ReferencePointBox.Text = "Referenced";
-            this.ReferencePointBox.UseVisualStyleBackColor = true;
-            this.ReferencePointBox.CheckedChanged += new System.EventHandler(this.ReferencePointBox_CheckedChanged);
+            this.ReferencedCheckBox.AutoSize = true;
+            this.ReferencedCheckBox.Location = new System.Drawing.Point(19, 50);
+            this.ReferencedCheckBox.Name = "ReferencedCheckBox";
+            this.ReferencedCheckBox.Size = new System.Drawing.Size(101, 17);
+            this.ReferencedCheckBox.TabIndex = 59;
+            this.ReferencedCheckBox.Text = "Use MyFlatField";
+            this.ReferencedCheckBox.UseVisualStyleBackColor = true;
+            this.ReferencedCheckBox.CheckedChanged += new System.EventHandler(this.ReferencedCheckBox_CheckedChanged);
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(13, 265);
+            this.label8.Location = new System.Drawing.Point(14, 34);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(60, 13);
             this.label8.TabIndex = 60;
             this.label8.Text = "Stash Date";
             // 
-            // AutoskyCheckBox
+            // groupBox7
             // 
-            this.AutoskyCheckBox.AutoSize = true;
-            this.AutoskyCheckBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.AutoskyCheckBox.Location = new System.Drawing.Point(9, 16);
-            this.AutoskyCheckBox.Name = "AutoskyCheckBox";
-            this.AutoskyCheckBox.Size = new System.Drawing.Size(63, 17);
-            this.AutoskyCheckBox.TabIndex = 2;
-            this.AutoskyCheckBox.Text = "Autorun";
-            this.AutoskyCheckBox.UseVisualStyleBackColor = true;
+            this.groupBox7.Controls.Add(this.label8);
+            this.groupBox7.Controls.Add(this.LibraryDateSelectionBox);
+            this.groupBox7.Controls.Add(this.CreateLibraryButton);
+            this.groupBox7.ForeColor = System.Drawing.Color.White;
+            this.groupBox7.Location = new System.Drawing.Point(12, 237);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(185, 113);
+            this.groupBox7.TabIndex = 61;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "Reduction Group Library";
             // 
             // FormCalFrameFactory
             // 
@@ -919,12 +951,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DarkCyan;
             this.ClientSize = new System.Drawing.Size(718, 488);
-            this.Controls.Add(this.label8);
-            this.Controls.Add(this.ReferencePointBox);
+            this.Controls.Add(this.groupBox7);
+            this.Controls.Add(this.ReferencedCheckBox);
             this.Controls.Add(this.ImagePathField);
             this.Controls.Add(this.ImageFolderButton);
-            this.Controls.Add(this.LibraryDateSelectionBox);
-            this.Controls.Add(this.CreateLibraryButton);
             this.Controls.Add(this.StayOnTopBox);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.StatusBox);
@@ -963,6 +993,8 @@
             this.groupBox8.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            this.groupBox7.ResumeLayout(false);
+            this.groupBox7.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1029,9 +1061,11 @@
         internal System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.DateTimePicker SkyTimePicker;
-        private System.Windows.Forms.CheckBox ReferencePointBox;
+        private System.Windows.Forms.CheckBox ReferencedCheckBox;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.CheckBox AutoskyCheckBox;
+        private System.Windows.Forms.GroupBox groupBox7;
+        private System.Windows.Forms.Button ReferencePointButton;
     }
 }
 

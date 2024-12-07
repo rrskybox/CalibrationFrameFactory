@@ -98,7 +98,7 @@ namespace CalFrameFactory
             DarksCountBox.Value = cfg.DarkCount;
             FlatsCountBox.Value = cfg.FlatCount;
             CCDTempBox.Value = (decimal)cfg.Temperature;
-            ReferencePointBox.Checked = cfg.HasReferencePosition;
+            ReferencedCheckBox.Checked = cfg.HasReferencePosition;
 
             //Fill in Binnning choice
             switch (cfg.Binning)
@@ -221,24 +221,6 @@ namespace CalFrameFactory
                             break;
                         }
                 }
-            //Fill in filter selection
-            List<Filters.ActiveFilter> chkList = cfg.FlatFilters;
-            //Fill in filter choices
-
-            if (Filters.FilterNameSet().Length > 0)
-                foreach (string f in Filters.FilterNameSet())
-                    FlatFilterListBox.Items.Add(f, chkList.Exists(x => x.FilterName == f));
-            else
-            {
-                MessageBox.Show("No Filters have been configured in TSX.  " +
-                "Set up filters and restart calibration frames.  " +
-                "Calibration Frame Factory will exit.",
-                "Initialization Error");
-                Close();
-                return;
-            }
-
-
             FlatsSubform();
             StayOnTopBox.Checked = cfg.StayOnTop;
             DateTime? latest = CalDB.FindMostRecentCalibration();
@@ -251,10 +233,15 @@ namespace CalFrameFactory
         private void FlatsSubform()
         {
             Configuration cfg = new Configuration();
-            LightSource flatLightSource = cfg.FlatSource;
-            FlatControl = new FlatMan();
+            //Fill in filter selection
+            List<Filters.ActiveFilter> chkList = cfg.FlatFilters;
+            //Fill in filter choices
 
-            switch (flatLightSource)
+            if (Filters.FilterNameSet().Length > 0)
+                foreach (string f in Filters.FilterNameSet())
+                    FlatFilterListBox.Items.Add(f, chkList.Exists(x => x.FilterName == f));
+
+            switch (cfg.FlatSource)
             {
                 case LightSource.lsNone:
                     break;
@@ -265,12 +252,16 @@ namespace CalFrameFactory
                     SkyDuskSelect.Checked = true;
                     break;
                 case LightSource.lsFlatMan:
+                    //FlatControl = new FlatMan();
                     DeviceIdLabel.Text = cfg.FlatPanelDeviceName;
                     PanelSelect.Checked = true;
                     break;
                 default:
                     break;
             }
+            if (CheckToolKitApp("Reference Point") == null)
+                ReferencePointButton.BackColor = Color.Gray;
+
             if (cfg.FlatTargetADU != 0) { FlatsTargetADU.Value = cfg.FlatTargetADU; }
             else cfg.FlatTargetADU = (int)FlatsTargetADU.Value;
             if (cfg.FlatCount != 0)
@@ -298,9 +289,12 @@ namespace CalFrameFactory
         private void StartButton_Click(object sender, EventArgs e)
         {
             //Prompt with message about dome and telescope pre initialization
-            MessageBox.Show("For sky flats, if a dome is in use then the shutter should be open " +
-                            "and dome tracking connected to telescope.");
-
+            Configuration cfg = new Configuration();
+            if (cfg.FlatSource != LightSource.lsFlatMan)
+                MessageBox.Show("For sky flats, if a dome is in use then the shutter should be open " +
+                                "and dome tracking connected to telescope.");
+            else
+                MessageBox.Show("For panel flats, dome should be closed and dome tracking off or disconnected.");
             StartButton.BackColor = Color.DarkRed;
             //Change session date to today, if needed
             CalDB.SetCalibrationDate(DateTime.Now);
@@ -439,8 +433,9 @@ namespace CalFrameFactory
 
                 //Flat Frames until done or exposure too long (i.e. count may not go to zero)
                 FlatsCountBox.ForeColor = Color.Red;
+                FlatMan FlatControl = new FlatMan(cfg.FlatPanelDeviceName);
 
-                if (ReferencePointBox.Checked)
+                if (ReferencedCheckBox.Checked)
                 {
                     lg.LogIt("Slewing telescope to MyFlatField reference point and parking");
                     FlatControl.FlatManStage();
@@ -599,13 +594,17 @@ namespace CalFrameFactory
 
             Configuration cfg = new Configuration();
             LogEvent lg = new LogEvent();
+            FlatControl = new FlatMan(cfg.FlatPanelDeviceName);
+            if (FlatControl == null)
+            {
+                lg.LogIt("Attempt to open flat panel device failed.");
+                return;
+            }
             totalreps = 0;
             if (reps <= 0)
                 return;
             // Change the form count box color
             FlatsCountBox.ForeColor = Color.DarkRed;
-            lg.LogIt("Slewing telescope to MyFlatField reference point and parking");
-            FlatControl.FlatManStage();
             //Turn on Fltaman
             FlatControl.Light = true;
             FlatControl.Bright = cfg.FlatInitialBrightness;
@@ -657,6 +656,9 @@ namespace CalFrameFactory
             int MinADUVal = (int)(tgtADU * 0.8);
             int MaxADUVal = (int)(tgtADU * 1.2);
 
+            // Change the form count box color
+            FlatsCountBox.ForeColor = Color.DarkRed;
+
             foreach (Filters.ActiveFilter af in afList)
             {
                 //Determine exposure
@@ -688,7 +690,8 @@ namespace CalFrameFactory
                 }
             }
             lg.LogIt("**** Generated " + totalreps.ToString() + " sky flat frames ****");
-            //FlatsCountBox.Value = (decimal)reps;
+            // Change the form count box color
+            FlatsCountBox.ForeColor = Color.Green;
             return;
         }
 
@@ -1089,11 +1092,24 @@ namespace CalFrameFactory
 
         #region flat frames
 
+        private void ReferencePointButton_Click(object sender, EventArgs e)
+        {
+            if (!LaunchToolKitApp("Reference Point"))
+            {
+                DialogResult mbResult = MessageBox.Show("Reference Point tool not installed. \r\n " +
+                    "To install, download and extract the zip file (32 or 64 bit) from \r\n " +
+                    "https://github.com/rrskybox/ReferencePoint/tree/master/publish" + "\r\n" +
+                    "and run the setup.exe file.\r\n" +
+                    "Would you like to open that link now?", "Tool Not Installed", MessageBoxButtons.YesNo);
+                if (mbResult == DialogResult.Yes)
+                    System.Diagnostics.Process.Start("https://github.com/rrskybox/ReferencePoint/tree/master/publish");
+            }
+        }
+
         private void ChooseButton_Click(object sender, EventArgs e)
         {
             Configuration cfg = new Configuration();
-            cfg.FlatPanelDeviceName = null;
-            cfg.FlatPanelDeviceName = FlatControl.CreateFlatManDevice();
+            cfg.FlatPanelDeviceName = FlatMan.ChooseFlatManDevice();
             DeviceIdLabel.Text = cfg.FlatPanelDeviceName;
         }
 
@@ -1130,6 +1146,25 @@ namespace CalFrameFactory
         private void FlatFilterListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             Configuration cfg = new Configuration();
+            //If the list is empty, try to fill in filter selection
+            if (FlatFilterListBox.Items.Count == 0)
+            {
+                List<Filters.ActiveFilter> chkList = cfg.FlatFilters;
+                //Fill in filter choices
+
+                if (Filters.FilterNameSet().Length > 0)
+                    foreach (string f in Filters.FilterNameSet())
+                        FlatFilterListBox.Items.Add(f, chkList.Exists(x => x.FilterName == f));
+                else
+                {
+                    MessageBox.Show("No Filters have been configured in TSX.  " +
+                    "Set up filters and restart Calibration Frame Factory.  " +
+                    "Calibration Frame Factory will exit.",
+                    "Initialization Error");
+                    return;
+                }
+            }
+
             List<Filters.ActiveFilter> fList = new List<Filters.ActiveFilter>();
             foreach (string fName in FlatFilterListBox.CheckedItems)
                 fList.Add(new Filters.ActiveFilter { FilterName = fName, FilterIndex = (int)Filters.LookUpFilterIndex(fName) });
@@ -1155,15 +1190,23 @@ namespace CalFrameFactory
         private void PanelSelectButton_CheckedChanged(object sender, EventArgs e)
         {
             Configuration cfg = new Configuration();
-            FlatControl = new FlatMan();
             cfg.FlatSource = LightSource.lsFlatMan;
             DeviceIdLabel.Text = cfg.FlatPanelDeviceName;
         }
 
-        private void ReferencePointBox_CheckedChanged(object sender, EventArgs e)
+        private void ReferencedCheckBox_CheckedChanged(object sender, EventArgs e)
         {
+            //Use MyFlatField
             Configuration cfg = new Configuration();
-            cfg.HasReferencePosition = ReferencePointBox.Checked;
+            //Check to see if MyFlatField has been created in TSX,
+            //  if not, then don't allow check, otherwise save accordingly
+            if (ReferencedCheckBox.Checked)
+            {
+                FlatMan.Target target = FlatMan.FindTarget("MyFlatField");
+                if (target == null)
+                    ReferencedCheckBox.Checked = false;
+            }
+            cfg.HasReferencePosition = ReferencedCheckBox.Checked;
         }
 
         private void DarkCheckBoxToggle(int checkBoxNumber, bool red)
@@ -1273,6 +1316,35 @@ namespace CalFrameFactory
             this.Show();
             return;
         }
+
+        private bool LaunchToolKitApp(string toolName)
+        {
+            //Launches the specified toolName 
+            //  returns true if successful, false otherwise
+            string toolPath = CheckToolKitApp(toolName);
+            if (toolPath != null)
+            {
+                //Save state and turn on OnTop if on
+                StayOnTopBox.Checked = false;
+                Process pSystemExe = new Process();
+                pSystemExe.StartInfo.FileName = toolPath;
+                pSystemExe.Start();
+                return true;
+            }
+            else return false;
+        }
+
+        private string CheckToolKitApp(string toolName)
+        {
+            //builds file path to toolName.  returns empty if tool isn't installed
+            string ttdir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Microsoft\\Windows\\Start Menu\\Programs\\TSXToolkit\\TSXToolkit";
+            string ifbPath = ttdir + "\\" + toolName + ".appref-ms";
+            if (System.IO.File.Exists(ifbPath))
+                return ifbPath;
+            else
+                return null;
+        }
+
 
         #endregion
 

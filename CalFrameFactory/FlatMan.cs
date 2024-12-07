@@ -11,29 +11,44 @@ namespace CalFrameFactory
     {
         private ASCOM.DriverAccess.CoverCalibrator device;
 
-        public FlatMan()
+        public FlatMan(string panelDeviceName)
         {
-            CreateFlatManDevice();
+            // Create flat panel ASCOM device
+            // if one has been configured.  
+            Configuration cfg = new Configuration();
+            string fpName = cfg.FlatPanelDeviceName;
+            if (fpName == null)
+                return;
+            else
+                try
+                { device = new ASCOM.DriverAccess.CoverCalibrator(cfg.FlatPanelDeviceName); }
+                catch (Exception ex)
+                { return; }
+            try
+            { device.Connected = true; }
+            catch (Exception ex)
+            { return; }
             return;
         }
 
-        public string CreateFlatManDevice()
+        public static string ChooseFlatManDevice()
         {
-            // Create this device
+            //Perform ASCOM Choose on panelDeviceName.
+            // if it returns a null (none selected) then don't clear configuration,
+            // otherwise reset it to new name
             Configuration cfg = new Configuration();
+            string pName = cfg.FlatPanelDeviceName;
             try
             {
-                if (cfg.FlatPanelDeviceName == null)
-                    cfg.FlatPanelDeviceName = ASCOM.DriverAccess.CoverCalibrator.Choose("");
-                device = new ASCOM.DriverAccess.CoverCalibrator(cfg.FlatPanelDeviceName);
-                device.Connected = true;
-                return cfg.FlatPanelDeviceName;
+                pName = ASCOM.DriverAccess.CoverCalibrator.Choose(pName);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Flat panel driver error: " + ex.Message);
                 return null;
             }
+            if (pName == "")
+                pName = cfg.FlatPanelDeviceName;
+            return pName;
         }
 
         public bool IsConnected
@@ -133,7 +148,6 @@ namespace CalFrameFactory
             }
             return true;
         }
-
 
         public void FlatManClose()
         {
