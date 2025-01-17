@@ -21,7 +21,6 @@ namespace CalFrameFactory
 
     public partial class FormCalFrameFactory : Form
     {
-
         public bool abortflag = false;
         public int totalreps;
         public int autosavestate;
@@ -93,7 +92,7 @@ namespace CalFrameFactory
             StatusReportEvent.LogEventHandler += LogReportUpdate_Handler;
 
             Configuration cfg = new Configuration();
-            ImagePathField.Text = cfg.ImageDirectoryPath;
+            ImagePathField.Text = cfg.ReductionGroupDirectoryPath;
             BiasCountBox.Value = cfg.BiasCount;
             DarksCountBox.Value = cfg.DarkCount;
             FlatsCountBox.Value = cfg.FlatCount;
@@ -420,6 +419,7 @@ namespace CalFrameFactory
                 {
                     binningButton1x1.ForeColor = Color.Red;
                     BiasFrameLoop();
+                    if (BiasCountBox.Value == 0) lg.LogIt("All Bias frames completed");
                     binningButton1x1.ForeColor = Color.Green;
                 }
                 //Dark Frames if some left to do
@@ -428,6 +428,7 @@ namespace CalFrameFactory
                 {
                     DarkCheckBoxToggle(dExpList[i], true);
                     DarkFrameLoop(i);
+                    if (DarksCountBox.Value == 0) lg.LogIt("All Dark frames completed");
                     DarkCheckBoxToggle(dExpList[i], false);
                 }
 
@@ -447,7 +448,9 @@ namespace CalFrameFactory
                 }
                 else
                     SkyFlatFrameLoop((int)FlatsCountBox.Value, cfg.FlatFilters);
-            } while (BiasCountBox.Value > 0 && DarksCountBox.Value > 0);
+                if (FlatsCountBox.Value == 0) lg.LogIt("All Flat frames completed");
+
+            } while (BiasCountBox.Value > 0 || DarksCountBox.Value > 0);
 
             FlatsCountBox.ForeColor = Color.Green;
         }
@@ -497,13 +500,15 @@ namespace CalFrameFactory
             // Upon completion, store the image file in the library 
             // Clean up mess and return
 
-            ccdsoftCamera tsx_cc = new ccdsoftCamera();
-            tsx_cc.ExposureTime = exposure;
-            // tsx_cc.ExposureTime = exposure
-            tsx_cc.Frame = TheSky64Lib.ccdsoftImageFrame.cdBias;
-            tsx_cc.Delay = 0;
-            tsx_cc.Asynchronous = 0;
-            tsx_cc.ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone;
+            ccdsoftCamera tsx_cc = new ccdsoftCamera()
+            {
+                ExposureTime = exposure,
+                Frame = TheSky64Lib.ccdsoftImageFrame.cdBias,
+                Delay = 0,
+                Asynchronous = 0,
+                ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone,
+                Subframe = 0
+            };
             tsx_cc.TakeImage();
             while (tsx_cc.State == TheSky64Lib.ccdsoftCameraState.cdStateTakePicture)
             {
@@ -565,13 +570,15 @@ namespace CalFrameFactory
             // Start exposure and wait until completed or aborted
             // Upon completion, store the image file in the library 
             // Clean up mess and return
-            ccdsoftCamera tsx_cc = new ccdsoftCamera();
-            tsx_cc.ExposureTime = exposure;
-            // tsx_cc.ExposureTime = exposure
-            tsx_cc.Frame = TheSky64Lib.ccdsoftImageFrame.cdDark;
-            tsx_cc.Delay = 0;
-            tsx_cc.Asynchronous = 0; ;
-            tsx_cc.ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone;
+            ccdsoftCamera tsx_cc = new ccdsoftCamera()
+            {
+                ExposureTime = exposure,
+                Frame = TheSky64Lib.ccdsoftImageFrame.cdDark,
+                Delay = 0,
+                Asynchronous = 0,
+                ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone,
+                Subframe = 0
+            };
             tsx_cc.TakeImage();
             while (tsx_cc.State == TheSky64Lib.ccdsoftCameraState.cdStateTakePicture)
             {
@@ -730,7 +737,8 @@ namespace CalFrameFactory
                 FilterIndexZeroBased = filter,
                 Frame = TheSky64Lib.ccdsoftImageFrame.cdFlat,
                 Asynchronous = 0,
-                ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone
+                ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone,
+                Subframe = 0
             };
             tsx_cc.TakeImage();
             WaitImaging();
@@ -744,32 +752,37 @@ namespace CalFrameFactory
         private int FlatManBrightnessCalibration(int filter, double exposure, int startingBrightness, string binning, int targetADU)
         {
             //Looks for brightness setting that produces something close (80%) to the target ADU at the given exposure
+            //This algoritm assumes that any ADU above the target ADU is in a non-linear curve, but is linear below the target ADU.
+            //So, it tries to approach the optimum brightness from below using a linear calculation.  It also assumes that the 
+            //maximum brightness level is 255.
+            //
             //The brightness setting starts with the currently configured brightness.
             //The exposure setting is fixed at the curently configured flats exposure setting.
             //1. Take flat image with given filter at exposure and initial brightness level
             //2. It the currentADU is within 20% of the targetADU, and it is less than the targetADU, then return that brightness level
-            //3.   Otherwise, increment the brightness level up or down by 5 and try again.
+            //3. Otherwise, 
 
             LogEvent lg = new LogEvent();
 
             int currentADU = 0;
             int currentBrightness = startingBrightness;
+
             //
             //Neither the exposure nor the brightness is linear -- this is a problem
             lg.LogIt("Calibrating FlatMan brightness for Filter " + filter.ToString());
             //Try no more than 8 times to get a good brightness
             for (int i = 0; i < 8; i++)
             {
-                lg.LogIt("Brightness reset to " + currentBrightness.ToString("0"));
+                lg.LogIt("Brightness set to " + currentBrightness.ToString("0"));
                 //initially set brightness to the starting brightness, and wait a second for the FlatMan
                 FlatControl.Bright = currentBrightness;
                 System.Threading.Thread.Sleep(500);
                 //Get the ADU of a sample image (subframe)
                 currentADU = TakeFlatSample(filter, exposure, binning);
-                //If ADU is not close enough (greater than 20%) or is greater than target then
+                //If ADU is not close enough (greater than 20%) 
                 //  increase or decrease the brightness accordingly
                 //  Otherwise, we're done with it
-                if (!(CloseEnough(targetADU, currentADU, 20.0)) || (currentADU > targetADU))
+                if (!(CloseEnough(targetADU, currentADU, 20.0)))
                 {
                     currentBrightness = AdjustedBrightness(targetADU, currentADU, currentBrightness);
                 }
@@ -863,14 +876,15 @@ namespace CalFrameFactory
         private int AdjustedBrightness(double targetADU, double currentADU, int currentBrightness)
         {
             //Calculates a new brightness level based on the current ADU and current Brightness  
-            //  that would produce the targetADU assuming linearity.
-            //Linearity should be true if the current ADU is less than the target ADU.  If it is not
-            //  then the result will probably overshoot the target (in the negative direction) but a
-            //  test should be close.
-            //Maxes out at 100, I think
-
-            return (int)Math.Min(100, (currentBrightness * (targetADU / currentADU)));
-
+            //  that would produce the targetADU assuming linearity below the target ADU and nonlinearity above.
+            //If tested ADU is greater than target ADU, then return half the brightness.
+            //  Otherwise compute an adjusted brightness based on linear slope
+            int maxBrightness = 255;
+            if (currentADU > targetADU)
+                return currentBrightness / 2;
+            else
+                // return (int)Math.Min(maxBrightness, (currentBrightness * (targetADU / currentADU)) * .9);
+                return (int)Math.Min(maxBrightness, (currentBrightness * Math.Sqrt(targetADU / currentADU)));
         }
 
         private int AdjustedExposure(double targetADU, double currentADU, double currentExposure)
@@ -920,21 +934,21 @@ namespace CalFrameFactory
 
         #region general configuration
 
-        private void ImageFolderButton_Click(object sender, EventArgs e)
-        {
-            using (FolderBrowserDialog fbd = new FolderBrowserDialog())
-            {
-                DialogResult dr = fbd.ShowDialog();
-                {
-                    if (dr == DialogResult.OK)
-                    {
-                        Configuration cfg = new Configuration();
-                        cfg.ImageDirectoryPath = fbd.SelectedPath;
-                        ImagePathField.Text = fbd.SelectedPath;
-                    }
-                }
-            }
-        }
+        //private void ImageFolderButton_Click(object sender, EventArgs e)
+        //{
+        //    using (FolderBrowserDialog fbd = new FolderBrowserDialog())
+        //    {
+        //        DialogResult dr = fbd.ShowDialog();
+        //        {
+        //            if (dr == DialogResult.OK)
+        //            {
+        //                Configuration cfg = new Configuration();
+        //                cfg.ImageDirectoryPath = fbd.SelectedPath;
+        //                ImagePathField.Text = fbd.SelectedPath;
+        //            }
+        //        }
+        //    }
+        //}
 
         private void CCDTempBox_ValueChanged(object sender, EventArgs e)
         {
@@ -1068,6 +1082,8 @@ namespace CalFrameFactory
             else ClearDarksExposures(10);
             if (Check30.Checked) SaveDarksExposures(30);
             else ClearDarksExposures(30);
+            if (Check60.Checked) SaveDarksExposures(60);
+            else ClearDarksExposures(60);
             if (Check120.Checked) SaveDarksExposures(120);
             else ClearDarksExposures(120);
             if (Check180.Checked) SaveDarksExposures(180);
@@ -1164,11 +1180,16 @@ namespace CalFrameFactory
                     return;
                 }
             }
-
-            List<Filters.ActiveFilter> fList = new List<Filters.ActiveFilter>();
-            foreach (string fName in FlatFilterListBox.CheckedItems)
-                fList.Add(new Filters.ActiveFilter { FilterName = fName, FilterIndex = (int)Filters.LookUpFilterIndex(fName) });
-            cfg.FlatFilters = fList;
+            else
+            {
+                List<Filters.ActiveFilter> fList = new List<Filters.ActiveFilter>();
+                foreach (string fName in FlatFilterListBox.CheckedItems)
+                {
+                    int i = (int)Filters.LookUpFilterIndex(fName);
+                    fList.Add(new Filters.ActiveFilter { FilterName = fName, FilterIndex = (int)Filters.LookUpFilterIndex(fName) });
+                }
+                cfg.FlatFilters = fList;
+            }
         }
 
         private void SkyDawnSelect_CheckedChanged(object sender, EventArgs e)

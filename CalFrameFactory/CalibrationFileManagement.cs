@@ -55,14 +55,11 @@ namespace CalFrameFactory
             Configuration cfg = new Configuration();
             bool existresult;
             //Set todays date as default
-            string imagePath = cfg.ImageDirectoryPath;
+            string groupPath = cfg.ReductionGroupDirectoryPath;
             SessionDateString = DateTime.Now.ToString("ddMMMyyyy");
-            // Create the base directory, if none exists
-            existresult = Directory.Exists(imagePath);
-            if (!existresult)
-                Directory.CreateDirectory(imagePath);
+            // The base directory must exist with Configuration object creation
             //Create session date directory for calibration files
-            SessionCalibrationPath = imagePath + @"\" + "Calibration_" + SessionDateString;
+            SessionCalibrationPath = groupPath + @"\" + "Calibration_" + SessionDateString;
             //  if it exists then delete it
             existresult = Directory.Exists(SessionCalibrationPath);
             if (!existresult)
@@ -216,7 +213,7 @@ namespace CalFrameFactory
             // Set date string for file directory
             SessionDateString = newDate.ToString("ddMMMyyyy");
             // Set Calibration file path, creating necessary directories, as you go.
-            SessionCalibrationPath = cfg.ImageDirectoryPath + @"\" + "Calibration_" + SessionDateString;
+            SessionCalibrationPath = cfg.ReductionGroupDirectoryPath + @"\" + "Calibration_" + SessionDateString;
         }
 
         public DateTime? FindMostRecentCalibration()
@@ -224,7 +221,7 @@ namespace CalFrameFactory
             //Search the list of dated calibration subdirectories for most recent set
             //  return null if no prestack folder or no calibration folders
             Configuration cfg = new Configuration();
-            string imageDir = cfg.ImageDirectoryPath;
+            string imageDir = cfg.ReductionGroupDirectoryPath;
             if (Directory.Exists(imageDir))
             {
                 DirectoryInfo di = new DirectoryInfo(imageDir);

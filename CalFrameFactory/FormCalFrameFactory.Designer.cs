@@ -115,14 +115,15 @@
             // 
             // OtherExposureBox
             // 
-            this.OtherExposureBox.Location = new System.Drawing.Point(97, 168);
+            this.OtherExposureBox.Location = new System.Drawing.Point(146, 258);
+            this.OtherExposureBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.OtherExposureBox.Maximum = new decimal(new int[] {
             9999,
             0,
             0,
             0});
             this.OtherExposureBox.Name = "OtherExposureBox";
-            this.OtherExposureBox.Size = new System.Drawing.Size(54, 20);
+            this.OtherExposureBox.Size = new System.Drawing.Size(81, 26);
             this.OtherExposureBox.TabIndex = 26;
             this.OtherExposureBox.Value = new decimal(new int[] {
             150,
@@ -134,9 +135,10 @@
             // 
             this.CheckOther.AutoSize = true;
             this.CheckOther.ForeColor = System.Drawing.Color.White;
-            this.CheckOther.Location = new System.Drawing.Point(17, 171);
+            this.CheckOther.Location = new System.Drawing.Point(26, 263);
+            this.CheckOther.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.CheckOther.Name = "CheckOther";
-            this.CheckOther.Size = new System.Drawing.Size(74, 17);
+            this.CheckOther.Size = new System.Drawing.Size(100, 24);
             this.CheckOther.TabIndex = 25;
             this.CheckOther.Text = "Other Sec";
             this.CheckOther.UseVisualStyleBackColor = true;
@@ -144,9 +146,10 @@
             // 
             // DarksCountBox
             // 
-            this.DarksCountBox.Location = new System.Drawing.Point(142, 230);
+            this.DarksCountBox.Location = new System.Drawing.Point(213, 354);
+            this.DarksCountBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.DarksCountBox.Name = "DarksCountBox";
-            this.DarksCountBox.Size = new System.Drawing.Size(43, 20);
+            this.DarksCountBox.Size = new System.Drawing.Size(64, 26);
             this.DarksCountBox.TabIndex = 23;
             this.DarksCountBox.Value = new decimal(new int[] {
             20,
@@ -159,9 +162,10 @@
             // 
             this.Check600.AutoSize = true;
             this.Check600.ForeColor = System.Drawing.Color.White;
-            this.Check600.Location = new System.Drawing.Point(85, 145);
+            this.Check600.Location = new System.Drawing.Point(128, 223);
+            this.Check600.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check600.Name = "Check600";
-            this.Check600.Size = new System.Drawing.Size(66, 17);
+            this.Check600.Size = new System.Drawing.Size(87, 24);
             this.Check600.TabIndex = 19;
             this.Check600.Text = "600 Sec";
             this.Check600.UseVisualStyleBackColor = true;
@@ -169,9 +173,10 @@
             // 
             // BiasCountBox
             // 
-            this.BiasCountBox.Location = new System.Drawing.Point(142, 17);
+            this.BiasCountBox.Location = new System.Drawing.Point(213, 26);
+            this.BiasCountBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.BiasCountBox.Name = "BiasCountBox";
-            this.BiasCountBox.Size = new System.Drawing.Size(43, 20);
+            this.BiasCountBox.Size = new System.Drawing.Size(64, 26);
             this.BiasCountBox.TabIndex = 23;
             this.BiasCountBox.Value = new decimal(new int[] {
             40,
@@ -184,9 +189,10 @@
             // 
             this.Check60.AutoSize = true;
             this.Check60.ForeColor = System.Drawing.Color.White;
-            this.Check60.Location = new System.Drawing.Point(19, 103);
+            this.Check60.Location = new System.Drawing.Point(28, 158);
+            this.Check60.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check60.Name = "Check60";
-            this.Check60.Size = new System.Drawing.Size(60, 17);
+            this.Check60.Size = new System.Drawing.Size(78, 24);
             this.Check60.TabIndex = 9;
             this.Check60.Text = "60 Sec";
             this.Check60.UseVisualStyleBackColor = true;
@@ -196,9 +202,10 @@
             // 
             this.Check90.AutoSize = true;
             this.Check90.ForeColor = System.Drawing.Color.White;
-            this.Check90.Location = new System.Drawing.Point(19, 124);
+            this.Check90.Location = new System.Drawing.Point(28, 191);
+            this.Check90.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check90.Name = "Check90";
-            this.Check90.Size = new System.Drawing.Size(60, 17);
+            this.Check90.Size = new System.Drawing.Size(78, 24);
             this.Check90.TabIndex = 10;
             this.Check90.Text = "90 Sec";
             this.Check90.UseVisualStyleBackColor = true;
@@ -208,9 +215,10 @@
             // 
             this.Check120.AutoSize = true;
             this.Check120.ForeColor = System.Drawing.Color.White;
-            this.Check120.Location = new System.Drawing.Point(19, 145);
+            this.Check120.Location = new System.Drawing.Point(28, 223);
+            this.Check120.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check120.Name = "Check120";
-            this.Check120.Size = new System.Drawing.Size(66, 17);
+            this.Check120.Size = new System.Drawing.Size(87, 24);
             this.Check120.TabIndex = 11;
             this.Check120.Text = "120 Sec";
             this.Check120.UseVisualStyleBackColor = true;
@@ -218,7 +226,8 @@
             // 
             // CCDTempBox
             // 
-            this.CCDTempBox.Location = new System.Drawing.Point(17, 19);
+            this.CCDTempBox.Location = new System.Drawing.Point(26, 29);
+            this.CCDTempBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.CCDTempBox.Maximum = new decimal(new int[] {
             60,
             0,
@@ -230,7 +239,7 @@
             0,
             -2147483648});
             this.CCDTempBox.Name = "CCDTempBox";
-            this.CCDTempBox.Size = new System.Drawing.Size(43, 20);
+            this.CCDTempBox.Size = new System.Drawing.Size(64, 26);
             this.CCDTempBox.TabIndex = 7;
             this.CCDTempBox.Value = new decimal(new int[] {
             30,
@@ -243,9 +252,10 @@
             // 
             this.Check180.AutoSize = true;
             this.Check180.ForeColor = System.Drawing.Color.White;
-            this.Check180.Location = new System.Drawing.Point(85, 21);
+            this.Check180.Location = new System.Drawing.Point(128, 32);
+            this.Check180.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check180.Name = "Check180";
-            this.Check180.Size = new System.Drawing.Size(66, 17);
+            this.Check180.Size = new System.Drawing.Size(87, 24);
             this.Check180.TabIndex = 12;
             this.Check180.Text = "180 Sec";
             this.Check180.UseVisualStyleBackColor = true;
@@ -255,11 +265,12 @@
             // 
             this.StatusBox.BackColor = System.Drawing.Color.Cyan;
             this.StatusBox.ForeColor = System.Drawing.Color.Black;
-            this.StatusBox.Location = new System.Drawing.Point(12, 364);
+            this.StatusBox.Location = new System.Drawing.Point(18, 560);
+            this.StatusBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.StatusBox.Multiline = true;
             this.StatusBox.Name = "StatusBox";
             this.StatusBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.StatusBox.Size = new System.Drawing.Size(697, 113);
+            this.StatusBox.Size = new System.Drawing.Size(1044, 172);
             this.StatusBox.TabIndex = 42;
             // 
             // GroupBox4
@@ -267,9 +278,11 @@
             this.GroupBox4.Controls.Add(this.label3);
             this.GroupBox4.Controls.Add(this.BiasCountBox);
             this.GroupBox4.ForeColor = System.Drawing.Color.White;
-            this.GroupBox4.Location = new System.Drawing.Point(210, 37);
+            this.GroupBox4.Location = new System.Drawing.Point(315, 57);
+            this.GroupBox4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.GroupBox4.Name = "GroupBox4";
-            this.GroupBox4.Size = new System.Drawing.Size(195, 48);
+            this.GroupBox4.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.GroupBox4.Size = new System.Drawing.Size(292, 74);
             this.GroupBox4.TabIndex = 39;
             this.GroupBox4.TabStop = false;
             this.GroupBox4.Text = "Bias";
@@ -277,9 +290,10 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(72, 19);
+            this.label3.Location = new System.Drawing.Point(108, 29);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(68, 13);
+            this.label3.Size = new System.Drawing.Size(102, 20);
             this.label3.TabIndex = 24;
             this.label3.Text = "Total Frames";
             // 
@@ -289,9 +303,11 @@
             this.GroupBox2.Controls.Add(this.DarksCountBox);
             this.GroupBox2.Controls.Add(this.GroupBox3);
             this.GroupBox2.ForeColor = System.Drawing.Color.White;
-            this.GroupBox2.Location = new System.Drawing.Point(210, 94);
+            this.GroupBox2.Location = new System.Drawing.Point(315, 145);
+            this.GroupBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.GroupBox2.Name = "GroupBox2";
-            this.GroupBox2.Size = new System.Drawing.Size(195, 262);
+            this.GroupBox2.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.GroupBox2.Size = new System.Drawing.Size(292, 403);
             this.GroupBox2.TabIndex = 38;
             this.GroupBox2.TabStop = false;
             this.GroupBox2.Text = "Dark";
@@ -299,9 +315,10 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(33, 232);
+            this.label4.Location = new System.Drawing.Point(50, 357);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(106, 13);
+            this.label4.Size = new System.Drawing.Size(161, 20);
             this.label4.TabIndex = 41;
             this.label4.Text = "Fremes per Exposure";
             // 
@@ -324,9 +341,11 @@
             this.GroupBox3.Controls.Add(this.Check1);
             this.GroupBox3.Controls.Add(this.Check480);
             this.GroupBox3.ForeColor = System.Drawing.Color.White;
-            this.GroupBox3.Location = new System.Drawing.Point(10, 19);
+            this.GroupBox3.Location = new System.Drawing.Point(15, 29);
+            this.GroupBox3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.GroupBox3.Name = "GroupBox3";
-            this.GroupBox3.Size = new System.Drawing.Size(175, 199);
+            this.GroupBox3.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.GroupBox3.Size = new System.Drawing.Size(262, 306);
             this.GroupBox3.TabIndex = 40;
             this.GroupBox3.TabStop = false;
             this.GroupBox3.Text = "Exposures";
@@ -335,9 +354,10 @@
             // 
             this.Check10.AutoSize = true;
             this.Check10.ForeColor = System.Drawing.Color.White;
-            this.Check10.Location = new System.Drawing.Point(19, 62);
+            this.Check10.Location = new System.Drawing.Point(28, 95);
+            this.Check10.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check10.Name = "Check10";
-            this.Check10.Size = new System.Drawing.Size(60, 17);
+            this.Check10.Size = new System.Drawing.Size(78, 24);
             this.Check10.TabIndex = 22;
             this.Check10.Text = "10 Sec";
             this.Check10.UseVisualStyleBackColor = true;
@@ -347,9 +367,10 @@
             // 
             this.Check240.AutoSize = true;
             this.Check240.ForeColor = System.Drawing.Color.White;
-            this.Check240.Location = new System.Drawing.Point(85, 39);
+            this.Check240.Location = new System.Drawing.Point(128, 60);
+            this.Check240.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check240.Name = "Check240";
-            this.Check240.Size = new System.Drawing.Size(66, 17);
+            this.Check240.Size = new System.Drawing.Size(87, 24);
             this.Check240.TabIndex = 13;
             this.Check240.Text = "240 Sec";
             this.Check240.UseVisualStyleBackColor = true;
@@ -359,9 +380,10 @@
             // 
             this.Check30.AutoSize = true;
             this.Check30.ForeColor = System.Drawing.Color.White;
-            this.Check30.Location = new System.Drawing.Point(19, 83);
+            this.Check30.Location = new System.Drawing.Point(28, 128);
+            this.Check30.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check30.Name = "Check30";
-            this.Check30.Size = new System.Drawing.Size(60, 17);
+            this.Check30.Size = new System.Drawing.Size(78, 24);
             this.Check30.TabIndex = 21;
             this.Check30.Text = "30 Sec";
             this.Check30.UseVisualStyleBackColor = true;
@@ -371,9 +393,10 @@
             // 
             this.Check300.AutoSize = true;
             this.Check300.ForeColor = System.Drawing.Color.White;
-            this.Check300.Location = new System.Drawing.Point(85, 60);
+            this.Check300.Location = new System.Drawing.Point(128, 92);
+            this.Check300.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check300.Name = "Check300";
-            this.Check300.Size = new System.Drawing.Size(66, 17);
+            this.Check300.Size = new System.Drawing.Size(87, 24);
             this.Check300.TabIndex = 14;
             this.Check300.Text = "300 Sec";
             this.Check300.UseVisualStyleBackColor = true;
@@ -383,9 +406,10 @@
             // 
             this.Check540.AutoSize = true;
             this.Check540.ForeColor = System.Drawing.Color.White;
-            this.Check540.Location = new System.Drawing.Point(85, 124);
+            this.Check540.Location = new System.Drawing.Point(128, 191);
+            this.Check540.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check540.Name = "Check540";
-            this.Check540.Size = new System.Drawing.Size(66, 17);
+            this.Check540.Size = new System.Drawing.Size(87, 24);
             this.Check540.TabIndex = 20;
             this.Check540.Text = "540 Sec";
             this.Check540.UseVisualStyleBackColor = true;
@@ -395,9 +419,10 @@
             // 
             this.Check360.AutoSize = true;
             this.Check360.ForeColor = System.Drawing.Color.White;
-            this.Check360.Location = new System.Drawing.Point(85, 81);
+            this.Check360.Location = new System.Drawing.Point(128, 125);
+            this.Check360.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check360.Name = "Check360";
-            this.Check360.Size = new System.Drawing.Size(66, 17);
+            this.Check360.Size = new System.Drawing.Size(87, 24);
             this.Check360.TabIndex = 15;
             this.Check360.Text = "360 Sec";
             this.Check360.UseVisualStyleBackColor = true;
@@ -407,9 +432,10 @@
             // 
             this.Check3.AutoSize = true;
             this.Check3.ForeColor = System.Drawing.Color.White;
-            this.Check3.Location = new System.Drawing.Point(19, 41);
+            this.Check3.Location = new System.Drawing.Point(28, 63);
+            this.Check3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check3.Name = "Check3";
-            this.Check3.Size = new System.Drawing.Size(54, 17);
+            this.Check3.Size = new System.Drawing.Size(69, 24);
             this.Check3.TabIndex = 16;
             this.Check3.Text = "3 Sec";
             this.Check3.UseVisualStyleBackColor = true;
@@ -419,9 +445,10 @@
             // 
             this.Check1.AutoSize = true;
             this.Check1.ForeColor = System.Drawing.Color.White;
-            this.Check1.Location = new System.Drawing.Point(19, 21);
+            this.Check1.Location = new System.Drawing.Point(28, 32);
+            this.Check1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check1.Name = "Check1";
-            this.Check1.Size = new System.Drawing.Size(54, 17);
+            this.Check1.Size = new System.Drawing.Size(69, 24);
             this.Check1.TabIndex = 18;
             this.Check1.Text = "1 Sec";
             this.Check1.UseVisualStyleBackColor = true;
@@ -431,9 +458,10 @@
             // 
             this.Check480.AutoSize = true;
             this.Check480.ForeColor = System.Drawing.Color.White;
-            this.Check480.Location = new System.Drawing.Point(85, 103);
+            this.Check480.Location = new System.Drawing.Point(128, 158);
+            this.Check480.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Check480.Name = "Check480";
-            this.Check480.Size = new System.Drawing.Size(66, 17);
+            this.Check480.Size = new System.Drawing.Size(87, 24);
             this.Check480.TabIndex = 17;
             this.Check480.Text = "480 Sec";
             this.Check480.UseVisualStyleBackColor = true;
@@ -443,9 +471,11 @@
             // 
             this.GroupBox1.Controls.Add(this.CCDTempBox);
             this.GroupBox1.ForeColor = System.Drawing.Color.White;
-            this.GroupBox1.Location = new System.Drawing.Point(123, 37);
+            this.GroupBox1.Location = new System.Drawing.Point(184, 57);
+            this.GroupBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.GroupBox1.Name = "GroupBox1";
-            this.GroupBox1.Size = new System.Drawing.Size(74, 48);
+            this.GroupBox1.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.GroupBox1.Size = new System.Drawing.Size(111, 74);
             this.GroupBox1.TabIndex = 37;
             this.GroupBox1.TabStop = false;
             this.GroupBox1.Text = "Temp";
@@ -457,9 +487,11 @@
             this.BinningsBox.Controls.Add(this.binningButton2x2);
             this.BinningsBox.Controls.Add(this.binningButton1x1);
             this.BinningsBox.ForeColor = System.Drawing.Color.White;
-            this.BinningsBox.Location = new System.Drawing.Point(123, 94);
+            this.BinningsBox.Location = new System.Drawing.Point(184, 145);
+            this.BinningsBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.BinningsBox.Name = "BinningsBox";
-            this.BinningsBox.Size = new System.Drawing.Size(74, 125);
+            this.BinningsBox.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.BinningsBox.Size = new System.Drawing.Size(111, 192);
             this.BinningsBox.TabIndex = 36;
             this.BinningsBox.TabStop = false;
             this.BinningsBox.Text = "Binnings";
@@ -467,9 +499,10 @@
             // binningButton4x4
             // 
             this.binningButton4x4.AutoSize = true;
-            this.binningButton4x4.Location = new System.Drawing.Point(18, 88);
+            this.binningButton4x4.Location = new System.Drawing.Point(27, 135);
+            this.binningButton4x4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.binningButton4x4.Name = "binningButton4x4";
-            this.binningButton4x4.Size = new System.Drawing.Size(42, 17);
+            this.binningButton4x4.Size = new System.Drawing.Size(52, 24);
             this.binningButton4x4.TabIndex = 56;
             this.binningButton4x4.TabStop = true;
             this.binningButton4x4.Text = "4x4";
@@ -479,9 +512,10 @@
             // binningButton3x3
             // 
             this.binningButton3x3.AutoSize = true;
-            this.binningButton3x3.Location = new System.Drawing.Point(18, 68);
+            this.binningButton3x3.Location = new System.Drawing.Point(27, 105);
+            this.binningButton3x3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.binningButton3x3.Name = "binningButton3x3";
-            this.binningButton3x3.Size = new System.Drawing.Size(42, 17);
+            this.binningButton3x3.Size = new System.Drawing.Size(52, 24);
             this.binningButton3x3.TabIndex = 55;
             this.binningButton3x3.TabStop = true;
             this.binningButton3x3.Text = "3x3";
@@ -491,9 +525,10 @@
             // binningButton2x2
             // 
             this.binningButton2x2.AutoSize = true;
-            this.binningButton2x2.Location = new System.Drawing.Point(18, 46);
+            this.binningButton2x2.Location = new System.Drawing.Point(27, 71);
+            this.binningButton2x2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.binningButton2x2.Name = "binningButton2x2";
-            this.binningButton2x2.Size = new System.Drawing.Size(42, 17);
+            this.binningButton2x2.Size = new System.Drawing.Size(52, 24);
             this.binningButton2x2.TabIndex = 54;
             this.binningButton2x2.TabStop = true;
             this.binningButton2x2.Text = "2x2";
@@ -504,9 +539,10 @@
             // 
             this.binningButton1x1.AutoSize = true;
             this.binningButton1x1.Checked = true;
-            this.binningButton1x1.Location = new System.Drawing.Point(18, 25);
+            this.binningButton1x1.Location = new System.Drawing.Point(27, 38);
+            this.binningButton1x1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.binningButton1x1.Name = "binningButton1x1";
-            this.binningButton1x1.Size = new System.Drawing.Size(42, 17);
+            this.binningButton1x1.Size = new System.Drawing.Size(52, 24);
             this.binningButton1x1.TabIndex = 53;
             this.binningButton1x1.TabStop = true;
             this.binningButton1x1.Text = "1x1";
@@ -517,9 +553,10 @@
             // 
             this.StartButton.BackColor = System.Drawing.Color.SpringGreen;
             this.StartButton.ForeColor = System.Drawing.Color.Black;
-            this.StartButton.Location = new System.Drawing.Point(12, 111);
+            this.StartButton.Location = new System.Drawing.Point(18, 171);
+            this.StartButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.StartButton.Name = "StartButton";
-            this.StartButton.Size = new System.Drawing.Size(100, 27);
+            this.StartButton.Size = new System.Drawing.Size(150, 42);
             this.StartButton.TabIndex = 35;
             this.StartButton.Text = "Start";
             this.StartButton.UseVisualStyleBackColor = false;
@@ -529,9 +566,10 @@
             // 
             this.AbortButton.BackColor = System.Drawing.Color.SpringGreen;
             this.AbortButton.ForeColor = System.Drawing.Color.Black;
-            this.AbortButton.Location = new System.Drawing.Point(12, 145);
+            this.AbortButton.Location = new System.Drawing.Point(18, 223);
+            this.AbortButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.AbortButton.Name = "AbortButton";
-            this.AbortButton.Size = new System.Drawing.Size(100, 27);
+            this.AbortButton.Size = new System.Drawing.Size(150, 42);
             this.AbortButton.TabIndex = 34;
             this.AbortButton.Text = "Abort";
             this.AbortButton.UseVisualStyleBackColor = false;
@@ -541,9 +579,10 @@
             // 
             this.CloseButton.BackColor = System.Drawing.Color.SpringGreen;
             this.CloseButton.ForeColor = System.Drawing.Color.Black;
-            this.CloseButton.Location = new System.Drawing.Point(12, 177);
+            this.CloseButton.Location = new System.Drawing.Point(18, 272);
+            this.CloseButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.CloseButton.Name = "CloseButton";
-            this.CloseButton.Size = new System.Drawing.Size(100, 27);
+            this.CloseButton.Size = new System.Drawing.Size(150, 42);
             this.CloseButton.TabIndex = 33;
             this.CloseButton.Text = "Close";
             this.CloseButton.UseVisualStyleBackColor = false;
@@ -552,9 +591,10 @@
             // FlatManManualSetupCheckbox
             // 
             this.FlatManManualSetupCheckbox.AutoSize = true;
-            this.FlatManManualSetupCheckbox.Location = new System.Drawing.Point(9, 47);
+            this.FlatManManualSetupCheckbox.Location = new System.Drawing.Point(14, 72);
+            this.FlatManManualSetupCheckbox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.FlatManManualSetupCheckbox.Name = "FlatManManualSetupCheckbox";
-            this.FlatManManualSetupCheckbox.Size = new System.Drawing.Size(97, 17);
+            this.FlatManManualSetupCheckbox.Size = new System.Drawing.Size(134, 24);
             this.FlatManManualSetupCheckbox.TabIndex = 46;
             this.FlatManManualSetupCheckbox.Text = "Manual Set Up";
             this.FlatManManualSetupCheckbox.UseVisualStyleBackColor = true;
@@ -564,9 +604,10 @@
             // 
             this.label5.AutoSize = true;
             this.label5.ForeColor = System.Drawing.Color.White;
-            this.label5.Location = new System.Drawing.Point(6, 106);
+            this.label5.Location = new System.Drawing.Point(9, 163);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(64, 13);
+            this.label5.Size = new System.Drawing.Size(94, 20);
             this.label5.TabIndex = 40;
             this.label5.Text = "Target ADU";
             // 
@@ -574,23 +615,25 @@
             // 
             this.label1.AutoSize = true;
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(148, 107);
+            this.label1.Location = new System.Drawing.Point(222, 165);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(78, 13);
+            this.label1.Size = new System.Drawing.Size(117, 20);
             this.label1.TabIndex = 41;
             this.label1.Text = "Initial Exposure";
             // 
             // FlatManExposureNum
             // 
             this.FlatManExposureNum.DecimalPlaces = 1;
-            this.FlatManExposureNum.Location = new System.Drawing.Point(228, 103);
+            this.FlatManExposureNum.Location = new System.Drawing.Point(342, 158);
+            this.FlatManExposureNum.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.FlatManExposureNum.Maximum = new decimal(new int[] {
             60,
             0,
             0,
             0});
             this.FlatManExposureNum.Name = "FlatManExposureNum";
-            this.FlatManExposureNum.Size = new System.Drawing.Size(50, 20);
+            this.FlatManExposureNum.Size = new System.Drawing.Size(75, 26);
             this.FlatManExposureNum.TabIndex = 40;
             this.FlatManExposureNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.FlatManExposureNum.Value = new decimal(new int[] {
@@ -604,9 +647,10 @@
             // 
             this.label2.AutoSize = true;
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(112, 50);
+            this.label2.Location = new System.Drawing.Point(168, 77);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(83, 13);
+            this.label2.Size = new System.Drawing.Size(126, 20);
             this.label2.TabIndex = 37;
             this.label2.Text = "Initial Brightness";
             // 
@@ -616,9 +660,11 @@
             this.groupBox6.Controls.Add(this.PanelSelect);
             this.groupBox6.Controls.Add(this.SkyDawnSelect);
             this.groupBox6.ForeColor = System.Drawing.Color.White;
-            this.groupBox6.Location = new System.Drawing.Point(9, 125);
+            this.groupBox6.Location = new System.Drawing.Point(14, 192);
+            this.groupBox6.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(269, 37);
+            this.groupBox6.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox6.Size = new System.Drawing.Size(404, 57);
             this.groupBox6.TabIndex = 41;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Source";
@@ -626,9 +672,10 @@
             // SkyDuskSelect
             // 
             this.SkyDuskSelect.AutoSize = true;
-            this.SkyDuskSelect.Location = new System.Drawing.Point(110, 15);
+            this.SkyDuskSelect.Location = new System.Drawing.Point(165, 23);
+            this.SkyDuskSelect.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.SkyDuskSelect.Name = "SkyDuskSelect";
-            this.SkyDuskSelect.Size = new System.Drawing.Size(77, 17);
+            this.SkyDuskSelect.Size = new System.Drawing.Size(104, 24);
             this.SkyDuskSelect.TabIndex = 61;
             this.SkyDuskSelect.TabStop = true;
             this.SkyDuskSelect.Text = "Sky (Dusk)";
@@ -638,9 +685,10 @@
             // PanelSelect
             // 
             this.PanelSelect.AutoSize = true;
-            this.PanelSelect.Location = new System.Drawing.Point(211, 15);
+            this.PanelSelect.Location = new System.Drawing.Point(316, 23);
+            this.PanelSelect.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.PanelSelect.Name = "PanelSelect";
-            this.PanelSelect.Size = new System.Drawing.Size(52, 17);
+            this.PanelSelect.Size = new System.Drawing.Size(67, 24);
             this.PanelSelect.TabIndex = 60;
             this.PanelSelect.TabStop = true;
             this.PanelSelect.Text = "Panel";
@@ -650,9 +698,10 @@
             // SkyDawnSelect
             // 
             this.SkyDawnSelect.AutoSize = true;
-            this.SkyDawnSelect.Location = new System.Drawing.Point(12, 14);
+            this.SkyDawnSelect.Location = new System.Drawing.Point(18, 22);
+            this.SkyDawnSelect.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.SkyDawnSelect.Name = "SkyDawnSelect";
-            this.SkyDawnSelect.Size = new System.Drawing.Size(80, 17);
+            this.SkyDawnSelect.Size = new System.Drawing.Size(108, 24);
             this.SkyDawnSelect.TabIndex = 59;
             this.SkyDawnSelect.TabStop = true;
             this.SkyDawnSelect.Text = "Sky (Dawn)";
@@ -665,7 +714,8 @@
             this.DeviceIdLabel.BackColor = System.Drawing.Color.White;
             this.DeviceIdLabel.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DeviceIdLabel.ForeColor = System.Drawing.Color.Black;
-            this.DeviceIdLabel.Location = new System.Drawing.Point(8, 20);
+            this.DeviceIdLabel.Location = new System.Drawing.Point(12, 31);
+            this.DeviceIdLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.DeviceIdLabel.Name = "DeviceIdLabel";
             this.DeviceIdLabel.Size = new System.Drawing.Size(92, 14);
             this.DeviceIdLabel.TabIndex = 2;
@@ -676,9 +726,10 @@
             this.ChooseButton.BackColor = System.Drawing.Color.SpringGreen;
             this.ChooseButton.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ChooseButton.ForeColor = System.Drawing.Color.Black;
-            this.ChooseButton.Location = new System.Drawing.Point(199, 16);
+            this.ChooseButton.Location = new System.Drawing.Point(298, 25);
+            this.ChooseButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.ChooseButton.Name = "ChooseButton";
-            this.ChooseButton.Size = new System.Drawing.Size(57, 23);
+            this.ChooseButton.Size = new System.Drawing.Size(86, 35);
             this.ChooseButton.TabIndex = 1;
             this.ChooseButton.Text = "Choose";
             this.ChooseButton.UseVisualStyleBackColor = false;
@@ -686,14 +737,15 @@
             // 
             // FlatManBrightnessNum
             // 
-            this.FlatManBrightnessNum.Location = new System.Drawing.Point(201, 45);
+            this.FlatManBrightnessNum.Location = new System.Drawing.Point(302, 69);
+            this.FlatManBrightnessNum.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.FlatManBrightnessNum.Maximum = new decimal(new int[] {
             255,
             0,
             0,
             0});
             this.FlatManBrightnessNum.Name = "FlatManBrightnessNum";
-            this.FlatManBrightnessNum.Size = new System.Drawing.Size(55, 20);
+            this.FlatManBrightnessNum.Size = new System.Drawing.Size(82, 26);
             this.FlatManBrightnessNum.TabIndex = 36;
             this.FlatManBrightnessNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.FlatManBrightnessNum.Value = new decimal(new int[] {
@@ -710,14 +762,15 @@
             0,
             0,
             0});
-            this.FlatsTargetADU.Location = new System.Drawing.Point(78, 103);
+            this.FlatsTargetADU.Location = new System.Drawing.Point(117, 158);
+            this.FlatsTargetADU.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.FlatsTargetADU.Maximum = new decimal(new int[] {
             100000,
             0,
             0,
             0});
             this.FlatsTargetADU.Name = "FlatsTargetADU";
-            this.FlatsTargetADU.Size = new System.Drawing.Size(54, 20);
+            this.FlatsTargetADU.Size = new System.Drawing.Size(81, 26);
             this.FlatsTargetADU.TabIndex = 39;
             this.FlatsTargetADU.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.FlatsTargetADU.Value = new decimal(new int[] {
@@ -730,14 +783,15 @@
             // FlatsCountBox
             // 
             this.FlatsCountBox.ForeColor = System.Drawing.Color.Black;
-            this.FlatsCountBox.Location = new System.Drawing.Point(236, 290);
+            this.FlatsCountBox.Location = new System.Drawing.Point(354, 446);
+            this.FlatsCountBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.FlatsCountBox.Maximum = new decimal(new int[] {
             50,
             0,
             0,
             0});
             this.FlatsCountBox.Name = "FlatsCountBox";
-            this.FlatsCountBox.Size = new System.Drawing.Size(42, 20);
+            this.FlatsCountBox.Size = new System.Drawing.Size(63, 26);
             this.FlatsCountBox.TabIndex = 28;
             this.FlatsCountBox.Value = new decimal(new int[] {
             10,
@@ -754,9 +808,11 @@
             this.FlatsGroup.Controls.Add(this.FlatManBrightnessNum);
             this.FlatsGroup.Controls.Add(this.ChooseButton);
             this.FlatsGroup.ForeColor = System.Drawing.Color.White;
-            this.FlatsGroup.Location = new System.Drawing.Point(9, 212);
+            this.FlatsGroup.Location = new System.Drawing.Point(14, 326);
+            this.FlatsGroup.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.FlatsGroup.Name = "FlatsGroup";
-            this.FlatsGroup.Size = new System.Drawing.Size(269, 72);
+            this.FlatsGroup.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.FlatsGroup.Size = new System.Drawing.Size(404, 111);
             this.FlatsGroup.TabIndex = 43;
             this.FlatsGroup.TabStop = false;
             this.FlatsGroup.Text = "Panel ";
@@ -765,10 +821,11 @@
             // 
             this.FlatFilterListBox.BackColor = System.Drawing.Color.Cyan;
             this.FlatFilterListBox.FormattingEnabled = true;
-            this.FlatFilterListBox.Location = new System.Drawing.Point(9, 13);
+            this.FlatFilterListBox.Location = new System.Drawing.Point(14, 20);
+            this.FlatFilterListBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.FlatFilterListBox.Name = "FlatFilterListBox";
             this.FlatFilterListBox.ScrollAlwaysVisible = true;
-            this.FlatFilterListBox.Size = new System.Drawing.Size(269, 79);
+            this.FlatFilterListBox.Size = new System.Drawing.Size(402, 109);
             this.FlatFilterListBox.TabIndex = 94;
             this.FlatFilterListBox.SelectedIndexChanged += new System.EventHandler(this.FlatFilterListBox_SelectedIndexChanged);
             // 
@@ -786,9 +843,11 @@
             this.groupBox8.Controls.Add(this.FlatManExposureNum);
             this.groupBox8.Controls.Add(this.label1);
             this.groupBox8.ForeColor = System.Drawing.Color.White;
-            this.groupBox8.Location = new System.Drawing.Point(420, 37);
+            this.groupBox8.Location = new System.Drawing.Point(630, 57);
+            this.groupBox8.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(289, 319);
+            this.groupBox8.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox8.Size = new System.Drawing.Size(434, 491);
             this.groupBox8.TabIndex = 39;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Flat";
@@ -798,9 +857,10 @@
             this.ReferencePointButton.BackColor = System.Drawing.Color.SpringGreen;
             this.ReferencePointButton.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ReferencePointButton.ForeColor = System.Drawing.Color.Black;
-            this.ReferencePointButton.Location = new System.Drawing.Point(13, 290);
+            this.ReferencePointButton.Location = new System.Drawing.Point(20, 446);
+            this.ReferencePointButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.ReferencePointButton.Name = "ReferencePointButton";
-            this.ReferencePointButton.Size = new System.Drawing.Size(96, 23);
+            this.ReferencePointButton.Size = new System.Drawing.Size(144, 35);
             this.ReferencePointButton.TabIndex = 47;
             this.ReferencePointButton.Text = "Reference Point";
             this.ReferencePointButton.UseVisualStyleBackColor = false;
@@ -812,9 +872,11 @@
             this.groupBox5.Controls.Add(this.label7);
             this.groupBox5.Controls.Add(this.SkyTimePicker);
             this.groupBox5.ForeColor = System.Drawing.Color.White;
-            this.groupBox5.Location = new System.Drawing.Point(9, 166);
+            this.groupBox5.Location = new System.Drawing.Point(14, 255);
+            this.groupBox5.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(269, 40);
+            this.groupBox5.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox5.Size = new System.Drawing.Size(404, 62);
             this.groupBox5.TabIndex = 47;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Sky";
@@ -823,9 +885,10 @@
             // 
             this.AutoskyCheckBox.AutoSize = true;
             this.AutoskyCheckBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.AutoskyCheckBox.Location = new System.Drawing.Point(9, 16);
+            this.AutoskyCheckBox.Location = new System.Drawing.Point(14, 25);
+            this.AutoskyCheckBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.AutoskyCheckBox.Name = "AutoskyCheckBox";
-            this.AutoskyCheckBox.Size = new System.Drawing.Size(63, 17);
+            this.AutoskyCheckBox.Size = new System.Drawing.Size(85, 24);
             this.AutoskyCheckBox.TabIndex = 2;
             this.AutoskyCheckBox.Text = "Autorun";
             this.AutoskyCheckBox.UseVisualStyleBackColor = true;
@@ -833,35 +896,39 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(91, 17);
+            this.label7.Location = new System.Drawing.Point(136, 26);
+            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(55, 13);
+            this.label7.Size = new System.Drawing.Size(82, 20);
             this.label7.TabIndex = 1;
             this.label7.Text = "Start Time";
             // 
             // SkyTimePicker
             // 
             this.SkyTimePicker.Format = System.Windows.Forms.DateTimePickerFormat.Time;
-            this.SkyTimePicker.Location = new System.Drawing.Point(153, 13);
+            this.SkyTimePicker.Location = new System.Drawing.Point(230, 20);
+            this.SkyTimePicker.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.SkyTimePicker.Name = "SkyTimePicker";
-            this.SkyTimePicker.Size = new System.Drawing.Size(110, 20);
+            this.SkyTimePicker.Size = new System.Drawing.Size(163, 26);
             this.SkyTimePicker.TabIndex = 0;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(121, 292);
+            this.label6.Location = new System.Drawing.Point(182, 449);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(104, 13);
+            this.label6.Size = new System.Drawing.Size(160, 20);
             this.label6.TabIndex = 95;
             this.label6.Text = "Flat Frames per Filter";
             // 
             // StayOnTopBox
             // 
             this.StayOnTopBox.AutoSize = true;
-            this.StayOnTopBox.Location = new System.Drawing.Point(19, 71);
+            this.StayOnTopBox.Location = new System.Drawing.Point(28, 109);
+            this.StayOnTopBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.StayOnTopBox.Name = "StayOnTopBox";
-            this.StayOnTopBox.Size = new System.Drawing.Size(86, 17);
+            this.StayOnTopBox.Size = new System.Drawing.Size(116, 24);
             this.StayOnTopBox.TabIndex = 53;
             this.StayOnTopBox.Text = "Stay On Top";
             this.StayOnTopBox.UseVisualStyleBackColor = true;
@@ -871,9 +938,10 @@
             // 
             this.CreateLibraryButton.BackColor = System.Drawing.Color.SpringGreen;
             this.CreateLibraryButton.ForeColor = System.Drawing.Color.Black;
-            this.CreateLibraryButton.Location = new System.Drawing.Point(46, 65);
+            this.CreateLibraryButton.Location = new System.Drawing.Point(69, 100);
+            this.CreateLibraryButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.CreateLibraryButton.Name = "CreateLibraryButton";
-            this.CreateLibraryButton.Size = new System.Drawing.Size(96, 30);
+            this.CreateLibraryButton.Size = new System.Drawing.Size(144, 46);
             this.CreateLibraryButton.TabIndex = 54;
             this.CreateLibraryButton.Text = "Create Library";
             this.CreateLibraryButton.UseVisualStyleBackColor = false;
@@ -882,42 +950,43 @@
             // LibraryDateSelectionBox
             // 
             this.LibraryDateSelectionBox.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.LibraryDateSelectionBox.Location = new System.Drawing.Point(80, 32);
+            this.LibraryDateSelectionBox.Location = new System.Drawing.Point(120, 49);
+            this.LibraryDateSelectionBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.LibraryDateSelectionBox.Name = "LibraryDateSelectionBox";
-            this.LibraryDateSelectionBox.Size = new System.Drawing.Size(96, 20);
+            this.LibraryDateSelectionBox.Size = new System.Drawing.Size(142, 26);
             this.LibraryDateSelectionBox.TabIndex = 55;
             // 
             // ImageFolderButton
             // 
             this.ImageFolderButton.BackColor = System.Drawing.Color.SpringGreen;
             this.ImageFolderButton.ForeColor = System.Drawing.Color.Black;
-            this.ImageFolderButton.Location = new System.Drawing.Point(12, 11);
+            this.ImageFolderButton.Location = new System.Drawing.Point(18, 17);
+            this.ImageFolderButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.ImageFolderButton.Name = "ImageFolderButton";
-            this.ImageFolderButton.Size = new System.Drawing.Size(99, 21);
+            this.ImageFolderButton.Size = new System.Drawing.Size(148, 32);
             this.ImageFolderButton.TabIndex = 56;
             this.ImageFolderButton.Text = "Stash";
             this.ImageFolderButton.UseVisualStyleBackColor = false;
-            this.ImageFolderButton.Click += new System.EventHandler(this.ImageFolderButton_Click);
             // 
             // ImagePathField
             // 
             this.ImagePathField.AutoSize = true;
             this.ImagePathField.BackColor = System.Drawing.Color.White;
             this.ImagePathField.ForeColor = System.Drawing.Color.Black;
-            this.ImagePathField.Location = new System.Drawing.Point(125, 14);
-            this.ImagePathField.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.ImagePathField.MinimumSize = new System.Drawing.Size(575, 16);
+            this.ImagePathField.Location = new System.Drawing.Point(188, 22);
+            this.ImagePathField.MinimumSize = new System.Drawing.Size(862, 25);
             this.ImagePathField.Name = "ImagePathField";
-            this.ImagePathField.Size = new System.Drawing.Size(575, 16);
+            this.ImagePathField.Size = new System.Drawing.Size(862, 25);
             this.ImagePathField.TabIndex = 57;
             this.ImagePathField.Text = "Image Path ";
             // 
             // ReferencedCheckBox
             // 
             this.ReferencedCheckBox.AutoSize = true;
-            this.ReferencedCheckBox.Location = new System.Drawing.Point(19, 50);
+            this.ReferencedCheckBox.Location = new System.Drawing.Point(28, 77);
+            this.ReferencedCheckBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.ReferencedCheckBox.Name = "ReferencedCheckBox";
-            this.ReferencedCheckBox.Size = new System.Drawing.Size(101, 17);
+            this.ReferencedCheckBox.Size = new System.Drawing.Size(142, 24);
             this.ReferencedCheckBox.TabIndex = 59;
             this.ReferencedCheckBox.Text = "Use MyFlatField";
             this.ReferencedCheckBox.UseVisualStyleBackColor = true;
@@ -926,9 +995,10 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(14, 34);
+            this.label8.Location = new System.Drawing.Point(21, 52);
+            this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(60, 13);
+            this.label8.Size = new System.Drawing.Size(90, 20);
             this.label8.TabIndex = 60;
             this.label8.Text = "Stash Date";
             // 
@@ -938,19 +1008,21 @@
             this.groupBox7.Controls.Add(this.LibraryDateSelectionBox);
             this.groupBox7.Controls.Add(this.CreateLibraryButton);
             this.groupBox7.ForeColor = System.Drawing.Color.White;
-            this.groupBox7.Location = new System.Drawing.Point(12, 237);
+            this.groupBox7.Location = new System.Drawing.Point(18, 365);
+            this.groupBox7.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(185, 113);
+            this.groupBox7.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox7.Size = new System.Drawing.Size(278, 174);
             this.groupBox7.TabIndex = 61;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Reduction Group Library";
             // 
             // FormCalFrameFactory
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DarkCyan;
-            this.ClientSize = new System.Drawing.Size(718, 488);
+            this.ClientSize = new System.Drawing.Size(1077, 751);
             this.Controls.Add(this.groupBox7);
             this.Controls.Add(this.ReferencedCheckBox);
             this.Controls.Add(this.ImagePathField);
@@ -966,6 +1038,7 @@
             this.Controls.Add(this.AbortButton);
             this.Controls.Add(this.CloseButton);
             this.ForeColor = System.Drawing.Color.White;
+            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "FormCalFrameFactory";
             this.Text = "Calibration Frame Factory";
             ((System.ComponentModel.ISupportInitialize)(this.OtherExposureBox)).EndInit();

@@ -13,15 +13,15 @@ namespace CalFrameFactory
 
         //Directories and files
         const string BisqueDirectoryPath = "\\Software Bisque\\TheSky Professional Edition 64";
-        const string PrestackDirectoryPath = "\\PreStack";
+        const string PrestackDirectoryName = "\\PreStack";
         const string ConfigurationFilename = "Calibration.xml";
-        const string ImageDirectory = "\\Calibration Frames";
+        const string ReductionGroupDirectoryName = "\\CalibrationSets";
         const string AppSettingsFilename = "AppSettings.ini";
         const string OutAppSettingsFilename = "AppSettings.ini";
 
         //xml name strings
-        const string xImageDirectoryPath = "ImageDirectoryPath";
-        const string xRoot = "CalibrationFrames";
+        const string xReductionGroupPath = "ImageDirectoryPath";
+        const string xRoot = "ReductionGroup";
         const string xBiasCount = "BiasFrameCount";
         const string xDarkCount = "DarkFrameCount";
         const string xFlatCount = "FlatFrameCount";
@@ -43,7 +43,8 @@ namespace CalFrameFactory
 
         const string xFlatPanelDeviceName = "FlatPanelDeviceName";
 
-        string cfgDir;  //Calibration Files root directory (normally user/Prestack}
+        string cfgDir;  //Directory that contains the calibration configuration xml file, default user/Prestack
+        string grpDir;  //Directory that contains the date-named calibration folders, default user/Prestack/CalibrationFrames
         string tsxDir;  //Software Bisque root directory
 
         public Configuration()
@@ -55,17 +56,18 @@ namespace CalFrameFactory
             //Check to see if this directory exists,
             //  if not, create the Calibration Frame Directory folder path in the Documents folder
             //      and populate it with a default configuration file
-            cfgDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + PrestackDirectoryPath;
+            cfgDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + PrestackDirectoryName;
             if (!Directory.Exists(cfgDir))
             {
                 Directory.CreateDirectory(cfgDir);
             }
+            grpDir = cfgDir + ReductionGroupDirectoryName;
             //The configuration file exists in the Calibration Frame Directory directory, if not there than create it with defaults.
             if (!File.Exists(cfgDir + "\\" + ConfigurationFilename))
             {
                 //New set up
                 XElement cDefaultX = new XElement(xRoot,
-                              new XElement(xImageDirectoryPath, cfgDir + ImageDirectory),  //default path for image storage
+                              new XElement(xReductionGroupPath, grpDir),  //default path for image storage
                               new XElement(xBiasCount, "40"),
                               new XElement(xDarkCount, "20"),
                               new XElement(xFlatCount, "10"),
@@ -83,11 +85,9 @@ namespace CalFrameFactory
 
                 cDefaultX.Save(cfgDir + "\\" + ConfigurationFilename);
             }
-        }
-
-        public string PreStackDirectoryPath
-        {
-            get { return cfgDir; }
+            //Create the image directory if it doesn't exist
+            if (!Directory.Exists(grpDir))
+                Directory.CreateDirectory(grpDir);
         }
 
         public string TSXDirectoryPath
@@ -95,16 +95,22 @@ namespace CalFrameFactory
             get { return tsxDir; }
         }
 
-        public string ImageDirectoryPath  //return default if empty
+        public string ReductionGroupDirectoryPath  //return default if empty
         {
-            get { return GetConfig(xImageDirectoryPath, ""); }
-            set
+            //The default image directory path is "CalibrationFrames" inside the "PreStack" directory.'
+            //The user can change it to something else after intitialization, but the default will always
+            //be created first time around.
+            get
             {
-                string idp = value + ImageDirectory;
-                if (!Directory.Exists(idp))
-                    Directory.CreateDirectory(idp);
-                SetConfig(xImageDirectoryPath, idp);
+                return GetConfig(xReductionGroupPath, "");
             }
+            //set
+            //{
+            //    string idp = value + ImageSetDirectory;
+            //    if (!Directory.Exists(idp))
+            //        Directory.CreateDirectory(idp);
+            //    SetConfig(xImageDirectoryPath, idp);
+            //}
         }
 
         public bool StayOnTop
@@ -348,10 +354,10 @@ namespace CalFrameFactory
         {
             return LookUpTwilight(Sk6ObjectInformationProperty.sk6ObjInfoProp_TWIL_ASTRON_START);
         }
- 
+
         public DateTime AstroTwilightEnd()
         {
-            return LookUpTwilight (Sk6ObjectInformationProperty.sk6ObjInfoProp_TWIL_ASTRON_END);
+            return LookUpTwilight(Sk6ObjectInformationProperty.sk6ObjInfoProp_TWIL_ASTRON_END);
         }
 
         public DateTime CivilTwilightStart()
@@ -363,7 +369,7 @@ namespace CalFrameFactory
         {
             return LookUpTwilight(Sk6ObjectInformationProperty.sk6ObjInfoProp_TWIL_CIVIL_END);
         }
- 
+
         private static DateTime LookUpTwilight(Sk6ObjectInformationProperty oProp)
         {
             sky6StarChart sc = new sky6StarChart();
