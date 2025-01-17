@@ -18,5 +18,5 @@ proliferate rapidly. Manual configuration of these groups is slow and agonizingl
 multiple dark exposure times. This utility fixes that by doing the configuration automatically, producing
 Image Calibration Groups that adhere to a specified naming convention.
 
-When imaging, the user canselect the desired reduction group either manually in the Camera “Take Photo” window or
-programmatically using the ccdsoftCamera.ReductionGroupName method
+When imaging, the user can select the desired reduction group either manually in the Camera “Take Photo” window or
+programmatically using the ccdsoftCamera.ReductionGroupName method.
