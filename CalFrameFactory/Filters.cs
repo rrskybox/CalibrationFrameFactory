@@ -18,11 +18,16 @@
 //
 
 using TheSky64Lib;
+using MaxIm;
 
 namespace CalFrameFactory
 {
     public partial class Filters
     {
+
+        const sbyte sbyteTrue = 1;
+        const sbyte sbyteFalse = 0;
+
         public class ActiveFilter
         {
             //public ColorIndexing.StandardColors JcAssign { get; set; }
@@ -31,24 +36,63 @@ namespace CalFrameFactory
             public bool FilterActive { get; set; }
         }
 
-          public static string[] FilterNameSet()
+        public static string[] FilterNameSet()
+        {
+            Configuration cfg = new Configuration();
+            if (cfg.ImagingApplication == Configuration.ImagingApp.TS)
+                return FilterNameSetTSX();
+            else
+                return FilterNameSetMDL();
+        }
+
+
+        public static string[] FilterNameSetTSX()
         {
             //Figure out the filter mapping
             //Find the filter name for the filter filter Number
-            ccdsoftCamera tsxc = new ccdsoftCamera();
-            try { tsxc.Connect(); }
+            ccdsoftCamera tsx_cc = new ccdsoftCamera();
+            try { tsx_cc.Connect(); }
             catch { return null; }
-            int filterCount = tsxc.lNumberFilters;
+            int filterCount = tsx_cc.lNumberFilters;
             string[] TSXFilterList = new string[filterCount];
             for (int f = 0; f < filterCount; f++)
-                TSXFilterList[f] = (tsxc.szFilterName(f));
+                TSXFilterList[f] = (tsx_cc.szFilterName(f));
             return TSXFilterList;
+        }
+
+        public static string[] FilterNameSetMDL()
+        {
+            //Figure out the filter mapping
+            //Find the filter name for the filter filter Number
+            CCDCamera ccdc = new CCDCamera();
+            try { ccdc.LinkEnabled = sbyteTrue; }
+            catch { return null; }
+            var MDLFilterList = ccdc.FilterNames;
+            return MDLFilterList;
         }
 
         public static string LookUpFilterName(int filterIndex)
         {
-            ccdsoftCamera tsxc = new ccdsoftCamera();
-            return (tsxc.szFilterName(filterIndex));
+            Configuration cfg = new Configuration();
+            if (cfg.ImagingApplication == Configuration.ImagingApp.TS)
+                return LookUpFilterNameTSX(filterIndex);
+            else
+                return LookUpFilterNameMDL(filterIndex);
+        }
+
+        public static string LookUpFilterNameTSX(int filterIndex)
+        {
+            ccdsoftCamera tsx_cc = new ccdsoftCamera();
+            return (tsx_cc.szFilterName(filterIndex));
+        }
+
+        public static string LookUpFilterNameMDL(int filterIndex)
+        {
+            CCDCamera ccdc = new CCDCamera();
+            try { ccdc.LinkEnabled = sbyteTrue; }
+            catch { return null; }
+            var MDLFilterList = ccdc.FilterNames;
+            return MDLFilterList[filterIndex];
         }
 
         public static int? LookUpFilterIndex(string filterName)

@@ -7,7 +7,6 @@ using System.Drawing;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
-using TheSky64Lib;
 
 namespace CalFrameFactory
 {
@@ -23,19 +22,17 @@ namespace CalFrameFactory
     {
         public bool abortflag = false;
         public int totalreps;
-        public int autosavestate;
-        public ccdsoftImageFrame framestate;
-        public double delaystate;
-        public int binningXstate;
-        public int binningYstate;
-        public double exposurestate;
-        public double settempstate;
         public List<int> dExpList;
         public int[] dCount;
 
+        //Keep track of the imaging application objects
+        private bool useTSX;
+        private ImagingTheSky tsxApp;
+        private ImagingMDL mdlApp;
+
         // Save folder structure pointer
-        public CalibrationFileManagement CalDB;
-        public FlatMan FlatControl;
+        private CalibrationFileManagement CalDB;
+        private FlatMan FlatControl;
 
         public static LogEvent StatusReportEvent;
 
@@ -46,6 +43,8 @@ namespace CalFrameFactory
             InitializeComponent();
             // 
             CalDB = new CalibrationFileManagement();
+            // Determine which application to use to take images
+            Configuration cfg = new Configuration();
 
             // Prep the form title
             try
@@ -57,48 +56,21 @@ namespace CalFrameFactory
                 Text = " in Debug";  // probably In debug, no version info available
             }
             Text = "Calibration Factory V " + Text;
-            ccdsoftCamera tsx_cc = new ccdsoftCamera();
-            try
-            {
-                tsx_cc.Connect();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("No Camera has been selected in TSX.  " +
-                                "Choose a camera and restart calibration.  " +
-                                "Calibration Frame Factory will exit.",
-                                "Initialization Error");
-                Close();
-                return;
-            }
-            // TSX camera simulator throws an exception on AutoSave so handle it
-            try
-            {
-                autosavestate = tsx_cc.AutoSaveOn;
-            }
-            catch (Exception ex)
-            {
-                // Just breeze on by
-            }
-            //Save current tsx camera settings
-            delaystate = tsx_cc.Delay;
-            binningXstate = tsx_cc.BinX;
-            binningYstate = tsx_cc.BinY;
-            exposurestate = tsx_cc.ExposureTime;
-            settempstate = tsx_cc.TemperatureSetPoint;
-            framestate = tsx_cc.Frame;
-            //Add log event generator
-            StatusReportEvent = new LogEvent();
-            StatusReportEvent.LogEventHandler += LogReportUpdate_Handler;
 
-            Configuration cfg = new Configuration();
-            ImagePathField.Text = cfg.ReductionGroupDirectoryPath;
-            BiasCountBox.Value = cfg.BiasCount;
-            DarksCountBox.Value = cfg.DarkCount;
-            FlatsCountBox.Value = cfg.FlatCount;
-            CCDTempBox.Value = (decimal)cfg.Temperature;
-            ReferencedCheckBox.Checked = cfg.HasReferencePosition;
-
+            useTSX = (cfg.ImagingApplication == Configuration.ImagingApp.TS);
+            if (useTSX)
+            {
+                //try { tsxApp = new ImagingTheSky(); }
+                //catch (Exception ex) { MessageBox.Show("TSX initialization error: " + ex.Message)}
+                TSXButton.Checked = true;
+                MDLButton.Checked = false;
+            }
+            else
+            {
+                //mdlApp = new ImagingMDL();
+                MDLButton.Checked = true;
+                TSXButton.Checked = false;
+            }
             //Fill in Binnning choice
             switch (cfg.Binning)
             {
@@ -122,7 +94,8 @@ namespace CalFrameFactory
                         binningButton4x4.Checked = true;
                         break;
                     }
-            };
+            }
+            ;
             //Fill in Flat light source choice
             switch (cfg.FlatSource)
             {
@@ -143,7 +116,8 @@ namespace CalFrameFactory
                     {
                         break;
                     }
-            };
+            }
+            ;
             //Fill in dark exposure choices
             foreach (int exp in cfg.DarkExposures)
                 switch (exp)
@@ -227,6 +201,17 @@ namespace CalFrameFactory
                 LibraryDateSelectionBox.Value = DateTime.Now;
             else
                 LibraryDateSelectionBox.Value = (DateTime)latest;
+            //Add log event generator
+            StatusReportEvent = new LogEvent();
+            StatusReportEvent.LogEventHandler += LogReportUpdate_Handler;
+
+            ImagePathField.Text = cfg.ReductionGroupDirectoryPath;
+            BiasCountBox.Value = cfg.BiasCount;
+            DarksCountBox.Value = cfg.DarkCount;
+            FlatsCountBox.Value = cfg.FlatCount;
+            CCDTempBox.Value = (decimal)cfg.Temperature;
+            ReferencedCheckBox.Checked = cfg.HasReferencePosition;
+
         }
 
         private void FlatsSubform()
@@ -235,10 +220,13 @@ namespace CalFrameFactory
             //Fill in filter selection
             List<Filters.ActiveFilter> chkList = cfg.FlatFilters;
             //Fill in filter choices
+            if (chkList.Count > 0)
+            {
+                if (Filters.FilterNameSet().Length > 0)
+                    foreach (string f in Filters.FilterNameSet())
+                        FlatFilterListBox.Items.Add(f, chkList.Exists(x => x.FilterName == f));
+            }
 
-            if (Filters.FilterNameSet().Length > 0)
-                foreach (string f in Filters.FilterNameSet())
-                    FlatFilterListBox.Items.Add(f, chkList.Exists(x => x.FilterName == f));
 
             switch (cfg.FlatSource)
             {
@@ -289,6 +277,7 @@ namespace CalFrameFactory
         {
             //Prompt with message about dome and telescope pre initialization
             Configuration cfg = new Configuration();
+            LogEvent lg = new LogEvent();
             if (cfg.FlatSource != LightSource.lsFlatMan)
                 MessageBox.Show("For sky flats, if a dome is in use then the shutter should be open " +
                                 "and dome tracking connected to telescope.");
@@ -297,30 +286,66 @@ namespace CalFrameFactory
             StartButton.BackColor = Color.DarkRed;
             //Change session date to today, if needed
             CalDB.SetCalibrationDate(DateTime.Now);
-            SetCCDTemperature();
+            double camTemp = cfg.Temperature;
+            lg.LogIt("Setting camera temperature to " + camTemp.ToString() + " degrees C");
+            if (useTSX)
+            {
+                tsxApp.SetCCDTemperature(camTemp);
+                double near = Math.Abs(camTemp * 0.9);
+                if (near == 0)
+                    near = .5;
+                while ((Math.Abs(tsxApp.GetCCDTemperature() - camTemp)) > near)
+                {
+                    CCDTempBox.ForeColor = Color.DarkRed;
+                    CCDTempBox.Value = (decimal)tsxApp.GetCCDTemperature();
+                    System.Threading.Thread.Sleep(1000);
+                }
+            }
+            else
+            {
+                mdlApp.SetCCDTemperature(camTemp);
+                double near = Math.Abs(camTemp * 0.9);
+                if (near == 0)
+                    near = .5;
+                while ((Math.Abs(mdlApp.GetCCDTemperature() - camTemp)) > near)
+                {
+                    CCDTempBox.ForeColor = Color.DarkRed;
+                    CCDTempBox.Value = (decimal)mdlApp.GetCCDTemperature();
+                    System.Threading.Thread.Sleep(1000);
+                }
+
+            }
+            CCDTempBox.Value = (decimal)camTemp;
+            CCDTempBox.ForeColor = Color.Green;
+
             RunExposures();
             StartButton.BackColor = Color.SpringGreen;
         }
 
         private void CloseButton_Click(object sender, EventArgs e)
         {
-            ccdsoftCamera tsx_cc = new ccdsoftCamera();
-            try
+            if (useTSX)
             {
-                tsx_cc.AutoSaveOn = autosavestate;
+                tsxApp.CloseUp();
+                //Close TheSky
+                Process[] PWIFind = Process.GetProcessesByName("TheSky64");
+                Thread.Sleep(1000);
+                if (PWIFind.Length > 0) PWIFind[0].Kill();
             }
-            catch (Exception ex)
+            else
             {
-                // Just breeze on by
+                mdlApp.CloseUp();
+                //Close MDL
+                Process[] PWIFind = Process.GetProcessesByName("MDL");
+                Thread.Sleep(1000);
+                if (PWIFind.Length > 0) PWIFind[0].Kill();
             }
-            //restore current tsx camera settings
-            tsx_cc.Delay = delaystate;
-            tsx_cc.BinX = binningXstate;
-            tsx_cc.BinY = binningYstate;
-            tsx_cc.ExposureTime = exposurestate;
-            tsx_cc.TemperatureSetPoint = settempstate;
-            tsx_cc.Frame = framestate;
             //close flatman, if enabled
+            if (FlatControl != null)
+            {
+                FlatControl.Light = false;
+                FlatControl = null;
+            }
             Close();
         }
 
@@ -347,61 +372,33 @@ namespace CalFrameFactory
             rgl.Generate(CalDB);
             Thread.Sleep(1000);
 
-            //Reopen TheSky
-            ccdsoftCamera tsxc = new ccdsoftCamera();
-            tsxc = null;
+            //Reopen ImagingApp
+            Configuration cfg = new Configuration();
+            bool useTSX = (cfg.ImagingApplication == Configuration.ImagingApp.TS);
+            ImagingTheSky tsxApp = new ImagingTheSky();
+            ImagingMDL mdlApp = new ImagingMDL();
+            tsxApp = null;
+            mdlApp = null;
 
             CreateLibraryButton.BackColor = Color.SpringGreen;
         }
 
         #endregion
 
-        #region TSX Operations
-
-        private void SetBinning(string binning)
-        {
-            // Method to set TSX CAO binning state
-            ccdsoftCamera tsx_cc = new ccdsoftCamera();
-            tsx_cc.BinX = Configuration.DecodeBinningX(binning);
-            tsx_cc.BinY = Configuration.DecodeBinningY(binning);
-        }
-
-        private void SetCCDTemperature()
-        {
-            ccdsoftCamera tsx_cc = new ccdsoftCamera();
-            try
-            {
-                tsx_cc.Connect();
-            }
-            catch (Exception ex)
-            {
-                return;
-            }
-            StatusBox.Text += "Cooling camera to " + CCDTempBox.Value.ToString("0") + "\r\n";
-
-            Show();
-
-            tsx_cc.TemperatureSetPoint = Convert.ToDouble(CCDTempBox.Value);
-            tsx_cc.RegulateTemperature = 1;
-            double near = Math.Abs(tsx_cc.TemperatureSetPoint * 0.9);
-            if (near == 0)
-                near = .5;
-            while ((Math.Abs(tsx_cc.Temperature - tsx_cc.TemperatureSetPoint)) > near)
-            {
-                CCDTempBox.ForeColor = Color.DarkRed;
-                CCDTempBox.Value = (decimal)tsx_cc.Temperature;
-                System.Threading.Thread.Sleep(1000);
-            }
-            CCDTempBox.Value = (decimal)tsx_cc.TemperatureSetPoint;
-            CCDTempBox.ForeColor = Color.Green;
-        }
+        #region Imaging Operations
 
         private void RunExposures()
         {
             Configuration cfg = new Configuration();
             LogEvent lg = new LogEvent();
-
-            SetBinning(cfg.Binning);
+            // Determine which application to use to take images
+            bool useTSX = (cfg.ImagingApplication == Configuration.ImagingApp.TS);
+            //ImagingTheSky tsxApp = new ImagingTheSky();
+            //ImagingMDL imagingMDL = new ImagingMDL();
+            if (useTSX)
+                tsxApp.SetBinning(cfg.Binning);
+            else
+                mdlApp.SetBinning(cfg.Binning);
 
             //Run a loop such that bias/darks are captured until the sky flats (dawn/dusk) start time.
             //  Then run the flats as long as possible,
@@ -428,27 +425,34 @@ namespace CalFrameFactory
                 {
                     DarkCheckBoxToggle(dExpList[i], true);
                     DarkFrameLoop(i);
-                    if (DarksCountBox.Value == 0) lg.LogIt("All Dark frames completed");
                     DarkCheckBoxToggle(dExpList[i], false);
+                    lg.LogIt("Dark frame + " + dExpList[i].ToString("0") + "seconds completed");
                 }
+                DarksCountBox.Value = 0;
+                lg.LogIt("All Dark frames completed");
 
                 //Flat Frames until done or exposure too long (i.e. count may not go to zero)
-                FlatsCountBox.ForeColor = Color.Red;
-                FlatMan FlatControl = new FlatMan(cfg.FlatPanelDeviceName);
-
-                if (ReferencedCheckBox.Checked)
+                if (FlatsCountBox.Value > 0)
                 {
-                    lg.LogIt("Slewing telescope to MyFlatField reference point and parking");
-                    FlatControl.FlatManStage();
-                }
+                    FlatsCountBox.ForeColor = Color.Red;
+                    FlatMan FlatControl = new FlatMan(cfg.FlatPanelDeviceName);
 
-                if (PanelSelect.Checked)
-                {
-                    PanelFlatFrameLoop((int)FlatsCountBox.Value, cfg.FlatFilters);
+                    if (ReferencedCheckBox.Checked)
+                    {
+                        lg.LogIt("Slewing telescope to MyFlatField reference point and parking");
+                        FlatControl.FlatManStage();
+                    }
+
+                    if (PanelSelect.Checked)
+                    {
+                        PanelFlatFrameLoop((int)FlatsCountBox.Value, cfg.FlatFilters);
+                    }
+                    else
+                        SkyFlatFrameLoop((int)FlatsCountBox.Value, cfg.FlatFilters);
+                    if (FlatsCountBox.Value == 0) lg.LogIt("All Flat frames completed");
                 }
                 else
-                    SkyFlatFrameLoop((int)FlatsCountBox.Value, cfg.FlatFilters);
-                if (FlatsCountBox.Value == 0) lg.LogIt("All Flat frames completed");
+                    lg.LogIt("No Flat frames to image");
 
             } while (BiasCountBox.Value > 0 || DarksCountBox.Value > 0);
 
@@ -460,6 +464,9 @@ namespace CalFrameFactory
             // This is the repeat loop for a given exposure repetitions
             Configuration cfg = new Configuration();
             LogEvent lg = new LogEvent();
+            // Determine which application to use to take images
+            bool useTSX = (cfg.ImagingApplication == Configuration.ImagingApp.TS);
+
             const double biasexposure = 0.001d;
             // Change the form count box color
             BiasCountBox.ForeColor = Color.Red;
@@ -467,7 +474,10 @@ namespace CalFrameFactory
             for (int i = 0; i < (int)BiasCountBox.Value; i++)
             {
                 lg.LogIt("Imaging Bias # " + i.ToString() + " at " + cfg.Binning.ToString() + " binning");
-                ImageBias(biasexposure);
+                if (useTSX)
+                    tsxApp.ImageBias(biasexposure, CalDB);
+                else
+                    mdlApp.ImageBias(biasexposure, CalDB);
                 if (abortflag)
                 {
                     return;
@@ -483,53 +493,13 @@ namespace CalFrameFactory
             return;
         }
 
-        private void ImageBias(double exposure)
-        {
-            // Take a bias image at the given exposure length and binning at the temperature
-            // assumes that binning and xxx have already been set correctly
-
-            // Image and save bias frames
-            // Turn on autosave
-            // Set exposure length
-            // Set for Bias frame type
-            // Set for 0 second delay
-            // Set for no image reduction
-            // Set for asynchronous execution
-            // For the number of repetions:
-            // Start exposure and wait until completed or aborted
-            // Upon completion, store the image file in the library 
-            // Clean up mess and return
-
-            ccdsoftCamera tsx_cc = new ccdsoftCamera()
-            {
-                ExposureTime = exposure,
-                Frame = TheSky64Lib.ccdsoftImageFrame.cdBias,
-                Delay = 0,
-                Asynchronous = 0,
-                ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone,
-                Subframe = 0
-            };
-            tsx_cc.TakeImage();
-            while (tsx_cc.State == TheSky64Lib.ccdsoftCameraState.cdStateTakePicture)
-            {
-                System.Windows.Forms.Application.DoEvents();
-                if (abortflag)
-                {
-                    tsx_cc.Abort();
-                    return;
-                }
-                System.Threading.Thread.Sleep(1000);
-            }
-            // Save the using the PreStack manager if checked,
-            // Otherwise TSX will do what TSX does.
-            CalDB.BiasImageStore();
-            return;
-        }
-
         private void DarkFrameLoop(int dIndex)
         {
             // This is the repeat loop for a given exposure repetitions
             Configuration cfg = new Configuration();
+            // Determine which application to use to take images
+            bool useTSX = (cfg.ImagingApplication == Configuration.ImagingApp.TS);
+
             int reps = dCount[dIndex];
             // Change the form count box color
             DarksCountBox.ForeColor = Color.DarkRed;
@@ -538,7 +508,10 @@ namespace CalFrameFactory
             {
                 LogEvent lg = new LogEvent();
                 lg.LogIt("Imaging Dark # " + i.ToString() + " at " + cfg.Binning.ToString() + " binning for " + dExpList[dIndex].ToString() + " seconds");
-                ImageDark(dExpList[dIndex]);
+                if (useTSX)
+                    tsxApp.ImageDark(dExpList[dIndex], CalDB);
+                else
+                    mdlApp.ImageDark(dExpList[dIndex], CalDB);
                 dCount[dIndex] -= 1;
                 if (abortflag)
                 {
@@ -554,45 +527,6 @@ namespace CalFrameFactory
             return;
         }
 
-        private void ImageDark(double exposure)
-        {
-            // Take a dark image at the given exposure length and binning at the temperature
-            // assumes that binning and xxx have already been set correctly
-
-            // Image and save dark frames
-            // Turn on autosave
-            // Set exposure length
-            // Set for Dark frame type
-            // Set for 0 second delay
-            // Set for no image reduction
-            // Set for asynchronous execution
-            // For the number of repetions:
-            // Start exposure and wait until completed or aborted
-            // Upon completion, store the image file in the library 
-            // Clean up mess and return
-            ccdsoftCamera tsx_cc = new ccdsoftCamera()
-            {
-                ExposureTime = exposure,
-                Frame = TheSky64Lib.ccdsoftImageFrame.cdDark,
-                Delay = 0,
-                Asynchronous = 0,
-                ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone,
-                Subframe = 0
-            };
-            tsx_cc.TakeImage();
-            while (tsx_cc.State == TheSky64Lib.ccdsoftCameraState.cdStateTakePicture)
-            {
-                System.Windows.Forms.Application.DoEvents();
-                if (abortflag)
-                {
-                    tsx_cc.Abort();
-                    return;
-                }
-                System.Threading.Thread.Sleep(1000);
-            }
-            CalDB.DarkImageStore();
-        }
-
         private void PanelFlatFrameLoop(int reps, List<Filters.ActiveFilter> afList)
         {
             // This is the repeat loop for a given exposure repetitions
@@ -601,6 +535,9 @@ namespace CalFrameFactory
 
             Configuration cfg = new Configuration();
             LogEvent lg = new LogEvent();
+            // Determine which application to use to take images
+            bool useTSX = (cfg.ImagingApplication == Configuration.ImagingApp.TS);
+
             FlatControl = new FlatMan(cfg.FlatPanelDeviceName);
             if (FlatControl == null)
             {
@@ -631,12 +568,18 @@ namespace CalFrameFactory
                 for (int i = 0; i < reps; i++)
                 {
                     lg.LogIt("Imaging Flat # " + i.ToString() + " at " + cfg.Binning.ToString() + " binning for " + Filters.LookUpFilterName(af.FilterIndex) + " filter");
-                    ImageFlat(cfg.FlatInitialExposure, af.FilterIndex);
+                    if (useTSX)
+                        tsxApp.ImageFlat(cfg.FlatInitialExposure, af.FilterIndex, CalDB);
+                    else
+                        mdlApp.ImageFlat(cfg.FlatInitialExposure, af.FilterIndex, CalDB);
                     if (abortflag)
                     {
                         return;
                     }
-                    CalDB.FlatImageStore(af.FilterName);
+                    if (useTSX)
+                        CalDB.FlatImageStoreTSX(tsxApp.tsx_image, af.FilterName);
+                    else
+                        CalDB.FlatImageStoreMDL(mdlApp.mdl_app, af.FilterName);
                     // Decrement count
                     --FlatsCountBox.Value;
                     ++totalreps;
@@ -657,6 +600,9 @@ namespace CalFrameFactory
             // This is the repeat loop for a given adu repetitions
             Configuration cfg = new Configuration();
             LogEvent lg = new LogEvent();
+            // Determine which application to use to take images
+            bool useTSX = (cfg.ImagingApplication == Configuration.ImagingApp.TS);
+
             int MinExpTime = 1;
             int MaxExpTime = 60;
             double tgtADU = cfg.FlatTargetADU;
@@ -685,12 +631,18 @@ namespace CalFrameFactory
                 // Set the count on the form
                 for (int i = 0; i < reps; i++)
                 {
-                    ImageFlat(exposure, af.FilterIndex);
+                    if (useTSX)
+                        tsxApp.ImageFlat(exposure, af.FilterIndex, CalDB);
+                    else
+                        mdlApp.ImageFlat(exposure, af.FilterIndex, CalDB);
                     if (abortflag)
                     {
                         break;
                     }
-                    CalDB.FlatImageStore(af.FilterName);
+                    if (useTSX)
+                        CalDB.FlatImageStoreTSX(tsxApp.tsx_image, af.FilterName);
+                    else
+                        CalDB.FlatImageStoreMDL(mdlApp.mdl_app, af.FilterName);
                     // Decrement count
                     --FlatsCountBox.Value;
                     ++totalreps;
@@ -712,43 +664,6 @@ namespace CalFrameFactory
                 return false;
         }
 
-        private void ImageFlat(double exposure, int filter)
-        {
-            // Take a dark image at the given exposure length and binning at the temperature
-            // assumes that binning and xxx have already been set correctly
-
-            // Image and save dark frames
-            // Turn on autosave
-            // Set exposure length
-            // Set for Dark frame type
-            // Set for 0 second delay
-            // Set for no image reduction
-            // Set for asynchronous execution
-            // For the number of repetions:
-            // Start exposure and wait until completed or aborted
-            // Upon completion, store the image file in the library 
-            // Clean up mess and return
-
-            LogEvent lg = new LogEvent();
-            Configuration cfg = new Configuration();
-            ccdsoftCamera tsx_cc = new ccdsoftCamera()
-            {
-                ExposureTime = exposure,
-                FilterIndexZeroBased = filter,
-                Frame = TheSky64Lib.ccdsoftImageFrame.cdFlat,
-                Asynchronous = 0,
-                ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone,
-                Subframe = 0
-            };
-            tsx_cc.TakeImage();
-            WaitImaging();
-            ccdsoftImage tsxi = new ccdsoftImage();
-            tsxi.AttachToActiveImager();
-            int avgADU = (int)tsxi.averagePixelValue();
-            lg.LogIt("Flat Imaged " + Filters.LookUpFilterName(filter) + " filter at " + cfg.Binning + " binning for " + avgADU.ToString() + " average ADU");
-            return;
-        }
-
         private int FlatManBrightnessCalibration(int filter, double exposure, int startingBrightness, string binning, int targetADU)
         {
             //Looks for brightness setting that produces something close (80%) to the target ADU at the given exposure
@@ -762,6 +677,9 @@ namespace CalFrameFactory
             //2. It the currentADU is within 20% of the targetADU, and it is less than the targetADU, then return that brightness level
             //3. Otherwise, 
 
+            Configuration cfg = new Configuration();
+            // Determine which application to use to take images
+            bool useTSX = (cfg.ImagingApplication == Configuration.ImagingApp.TS);
             LogEvent lg = new LogEvent();
 
             int currentADU = 0;
@@ -778,7 +696,10 @@ namespace CalFrameFactory
                 FlatControl.Bright = currentBrightness;
                 System.Threading.Thread.Sleep(500);
                 //Get the ADU of a sample image (subframe)
-                currentADU = TakeFlatSample(filter, exposure, binning);
+                if (useTSX)
+                    currentADU = tsxApp.TakeFlatSample(filter, exposure, binning);
+                else
+                    currentADU = mdlApp.TakeFlatSample(filter, exposure, binning);
                 //If ADU is not close enough (greater than 20%) 
                 //  increase or decrease the brightness accordingly
                 //  Otherwise, we're done with it
@@ -794,12 +715,10 @@ namespace CalFrameFactory
 
         private double SkyExposureCalibration(int filter, double startingExposure, string binning, int targetADU)
         {
-            //Looks for exposure setting that produces something close (80%) to the target ADU at the given exposure
-            //The exposure setting is fixed at the curently configured flats exposure setting.
-            //1. Take flat image with given filter at exposure and initial brightness level
-            //2. It the currentADU is within 20% of the targetADU, and it is less than the targetADU, then return that brightness level
-            //3.   Otherwise, increment the brightness level up or down by 5 and try again.
-
+            //Looks for exposure setting that produces something close (80%) to the ta
+            // Determine which application to use to take images
+            Configuration cfg = new Configuration();
+            bool useTSX = (cfg.ImagingApplication == Configuration.ImagingApp.TS);
             LogEvent lg = new LogEvent();
 
             int currentADU = 0;
@@ -812,7 +731,10 @@ namespace CalFrameFactory
             {
                 lg.LogIt("Exposure set to " + currentExposure.ToString("0.00"));
                 //Get the ADU of a sample image (subframe)
-                currentADU = TakeFlatSample(filter, currentExposure, binning);
+                if (useTSX)
+                    currentADU = tsxApp.TakeFlatSample(filter, currentExposure, binning);
+                else
+                    currentADU = mdlApp.TakeFlatSample(filter, currentExposure, binning);
                 //If ADU is not close enough (greater than 20%) or is greater than target then
                 //  increase or decrease the brightness accordingly
                 //  Otherwise, we're done with it
@@ -824,53 +746,6 @@ namespace CalFrameFactory
             }
             lg.LogIt("FlatMan brightness calibrated to " + currentExposure.ToString() + " at " + currentADU.ToString() + " ADU");
             return (currentExposure);
-        }
-
-        public int TakeFlatSample(int fltr, double exposure, string binning)
-        {
-            //Take a small subframed flat image and return the average pixel value
-            const double subframeFactor = .1;  //fraction of frame that will be subframed
-            LogEvent lg = new LogEvent();
-            lg.LogIt("Taking Flat Sample Frame");
-
-            //Take full image just to start and make sure we have the height and width correct
-            lg.LogIt("- Imaging Flat Frame at " + exposure.ToString("0.00") + "sec");
-            ccdsoftCamera tsxc = new ccdsoftCamera
-            {
-                BinX = Configuration.DecodeBinningX(binning),
-                BinY = Configuration.DecodeBinningY(binning),
-                FilterIndexZeroBased = fltr,
-                Frame = ccdsoftImageFrame.cdFlat,
-                ImageReduction = ccdsoftImageReduction.cdNone,
-                Subframe = 0,
-                AutoSaveOn = 1,
-                ExposureTime = exposure,
-                Asynchronous = 1,
-            };
-
-            int width = tsxc.WidthInPixels;
-            int height = tsxc.HeightInPixels;
-
-            //Set subframe centered on full image of height and width scaled down to the subframe factor
-            // The width center is
-            tsxc.SubframeLeft = (width / 2) - (int)(width * subframeFactor / 2);
-            tsxc.SubframeTop = (height / 2) - (int)(width * subframeFactor / 2);
-            tsxc.SubframeBottom = (height / 2) + (int)(width * subframeFactor / 2);
-            tsxc.SubframeRight = (width / 2) + (int)(width * subframeFactor / 2);
-            tsxc.Subframe = 1;
-
-            tsxc.TakeImage();
-            bool camResults = WaitImaging();
-            if (!camResults)
-            {
-                lg.LogIt("- Image Subframe Flat Error: " + camResults.ToString());
-                return 0;
-            }
-            ccdsoftImage tsxi = new ccdsoftImage();
-            tsxi.AttachToActiveImager();
-            int avgADU = (int)tsxi.averagePixelValue();
-            lg.LogIt("Sample Flat Sample Done: Average ADU = " + avgADU.ToString("0"));
-            return avgADU;
         }
 
         private int AdjustedBrightness(double targetADU, double currentADU, int currentBrightness)
@@ -914,21 +789,6 @@ namespace CalFrameFactory
             { return false; }
         }
 
-        private bool WaitImaging()
-        {
-            ccdsoftCamera tsxc = new ccdsoftCamera();
-            while (tsxc.State == TheSky64Lib.ccdsoftCameraState.cdStateTakePicture)
-            {
-                System.Windows.Forms.Application.DoEvents();
-                if (abortflag)
-                {
-                    tsxc.Abort();
-                    return false;
-                }
-                System.Threading.Thread.Sleep(1000);
-            }
-            return true;
-        }
 
         #endregion
 
@@ -966,7 +826,7 @@ namespace CalFrameFactory
             cfg.StayOnTop = TopMost;
         }
 
-        #endregion 
+        #endregion
 
         #region binning
 
@@ -998,7 +858,7 @@ namespace CalFrameFactory
                 cfg.Binning = "4X4";
         }
 
-        #endregion 
+        #endregion
 
         #region bias frames
 
@@ -1369,5 +1229,52 @@ namespace CalFrameFactory
 
         #endregion
 
+        private void TSXButton_CheckedChanged(object sender, EventArgs e)
+        {
+            // If TSX is selected, then set the imaging application to TSX
+            //  else set the imaging application to MDL
+            if (TSXButton.Checked)
+            {
+                Configuration cfg = new Configuration();
+                cfg.ImagingApplication = Configuration.ImagingApp.TS;
+                MDLButton.Checked = false;
+                try
+                {
+                    tsxApp = null;
+                    tsxApp = new ImagingTheSky();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error initializing TheSky application: " + ex.Message);
+                    TSXButton.Checked = false;
+                    return;
+                }
+            }
+        }
+
+        private void MDLButton_CheckedChanged(object sender, EventArgs e)
+        {
+            // If MDL is selected, then set the imaging application to MDL
+            //  else set the imaging application to TSX
+            if (MDLButton.Checked)
+            {
+                Configuration cfg = new Configuration();
+                cfg.ImagingApplication = Configuration.ImagingApp.MDL;
+                TSXButton.Checked = false;
+                try
+                {
+                    mdlApp = null;
+                    mdlApp = new ImagingMDL();
+                    //Wait for filter wheel -- it's slow
+                    Thread.Sleep(5000);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error initializing MDL application: " + ex.Message);
+                    MDLButton.Checked = false;
+                    return;
+                }
+            }
+        }
     }
 }

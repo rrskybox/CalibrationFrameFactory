@@ -10,6 +10,15 @@ namespace CalFrameFactory
 {
     internal class Configuration
     {
+        //Imaging
+        public enum ImagingApp
+        {
+            TS,
+            MDL
+        }
+
+        const string TheSkyName = "TSX";
+        const string MDLName = "MDL";
 
         //Directories and files
         const string BisqueDirectoryPath = "\\Software Bisque\\TheSky Professional Edition 64";
@@ -20,6 +29,7 @@ namespace CalFrameFactory
         const string OutAppSettingsFilename = "AppSettings.ini";
 
         //xml name strings
+        const string xImagingApp = "ImagingApplication";
         const string xReductionGroupPath = "ImageDirectoryPath";
         const string xRoot = "ReductionGroup";
         const string xBiasCount = "BiasFrameCount";
@@ -67,6 +77,7 @@ namespace CalFrameFactory
             {
                 //New set up
                 XElement cDefaultX = new XElement(xRoot,
+                              new XElement(xImagingApp, TheSkyName),  //default imaging application name
                               new XElement(xReductionGroupPath, grpDir),  //default path for image storage
                               new XElement(xBiasCount, "40"),
                               new XElement(xDarkCount, "20"),
@@ -111,6 +122,33 @@ namespace CalFrameFactory
             //        Directory.CreateDirectory(idp);
             //    SetConfig(xImageDirectoryPath, idp);
             //}
+        }
+
+        public ImagingApp ImagingApplication
+        {
+            get
+            {
+                string iApp = GetConfig(xImagingApp, TheSkyName);
+                if (iApp == MDLName)
+                    return ImagingApp.MDL;
+                else
+                    return ImagingApp.TS; //assume TSX is not MDL
+            }
+            set
+            {
+                switch (value)
+                {
+                    case ImagingApp.TS:
+                        SetConfig(xImagingApp, TheSkyName);
+                        break;
+                    case ImagingApp.MDL:
+                        SetConfig(xImagingApp, MDLName);
+                        break;
+                    default:
+                        SetConfig(xImagingApp, TheSkyName);
+                        break;
+                }
+            }
         }
 
         public bool StayOnTop

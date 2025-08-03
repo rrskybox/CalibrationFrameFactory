@@ -236,7 +236,7 @@ namespace CalFrameFactory
         public static void CenterStarChart(Target target)
         {
             //Centers the star chart on a target coordinates
-            sky6StarChart tsxc = new sky6StarChart
+            sky6StarChart tsx_cc = new sky6StarChart
             {
                 RightAscension = target.RA,
                 Declination = target.Dec

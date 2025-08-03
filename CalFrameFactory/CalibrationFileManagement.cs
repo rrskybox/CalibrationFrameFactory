@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TheSky64Lib;
+using MaxIm;
+using System.Diagnostics.Eventing.Reader;
 
 namespace CalFrameFactory
 {
@@ -28,7 +30,12 @@ namespace CalFrameFactory
         private const string BiasDirectory = @"\Bias";
         private const string FlatDirectory = @"\Flats";
 
+        private sbyte FitsFileType = 3;
+        private sbyte PixelDateType16 = 1;
+
         private int SeqNum;
+
+        private bool useTSX;
 
         private string DarkCalPath;
         private string BiasCalPath;
@@ -48,11 +55,16 @@ namespace CalFrameFactory
         }
 
         public string SessionDateString { get; set; } = null;
+
         public string SessionCalibrationPath { get; set; } = null;
 
         public CalibrationFileManagement()
         {
             Configuration cfg = new Configuration();
+            if (cfg.ImagingApplication == Configuration.ImagingApp.TS)
+                useTSX = true;
+            else
+                useTSX = false;
             bool existresult;
             //Set todays date as default
             string groupPath = cfg.ReductionGroupDirectoryPath;
@@ -97,43 +109,7 @@ namespace CalFrameFactory
             return;
         }
 
-        public string DarkImageStore()
-        {
-            // Stores the current active TSX image as designated dark file
-            // Step A:  attach the active image and generate directory and file name strings from the FITS information
-            // Three strings are needed:  one for exposure, one for the binning, one for temperature
-            LogEvent Status = new LogEvent();
-            ccdsoftImage tsxi = new ccdsoftImage();
-            var attachresult = ((dynamic)tsxi).AttachToActiveImager();
-            LocalExpPath = Convert.ToString(((dynamic)tsxi).FITSKeyword("EXPTIME"));
-            LocalBinPath = Convert.ToString(((dynamic)tsxi).FITSKeyword("XBINNING")) + "X" + Convert.ToString(((dynamic)tsxi).FITSKeyword("YBINNING"));
-            ImageCCDTemp = Convert.ToString(((dynamic)tsxi).FITSKeyword("SET-TEMP"));
-            // Step B:  make sure the directory tree exists, create it if it doesn't
-            bool existresult = Directory.Exists(DarkCalPath + @"\" + LocalBinPath);
-            if (!existresult)
-            {
-                Directory.CreateDirectory(DarkCalPath + @"\" + LocalBinPath);
-            }
-            existresult = Directory.Exists(DarkCalPath + @"\" + LocalBinPath + @"\" + LocalExpPath);
-            if (!existresult)
-            {
-                Directory.CreateDirectory(DarkCalPath + @"\" + LocalBinPath + @"\" + LocalExpPath);
-            }   // Open TSX object
-            // Step
-            string darkfilename = "Dark." + "B" + LocalBinPath + ".E" + LocalExpPath + ".T" + ImageCCDTemp + "." + SeqNum.ToString();
-            // Tell TSX what the filepath is going to be
-            string tsxPath = DarkCalPath + @"\" + LocalBinPath + @"\" + LocalExpPath + @"\" + darkfilename + ".FITS";
-            tsxi.Path = tsxPath;
-            string result = "Writing: " + tsxPath;
-            var savestatus = tsxi.Save();
-            // increment sequence number
-            SeqNum += 1;
-            Status.LogIt(result);
-
-            return result;
-        }
-
-        public string BiasImageStore()
+        public string BiasImageStoreTSX(ccdsoftImage tsxi)
         {
             // Stores the current active TSX image as designated bias file
             // Step A:  attach the active image and generate directory and file name strings from the FITS information
@@ -146,7 +122,6 @@ namespace CalFrameFactory
             #Else
             */
             LogEvent Status = new LogEvent();
-            ccdsoftImage tsxi = new ccdsoftImage();
             /* TODO ERROR: Skipped EndIfDirectiveTrivia
             #End If
             */
@@ -177,13 +152,126 @@ namespace CalFrameFactory
             return result;
         }
 
-        public string FlatImageStore(string filterName)
+        public string BiasImageStoreMDL(MaxIm.Application mdl_app)
+        {
+            // Stores the current active TSX image as designated bias file
+            // Step A:  attach the active image and generate directory and file name strings from the FITS information
+            // Two strings are needed:  one for one for the binning, one for temperature
+            LogEvent Status = new LogEvent();
+            MaxIm.Document image = mdl_app.CurrentDocument;
+            //LocalBinPath = Convert.ToString(((dynamic)image).GetFITSKey("XBINNING")) + "X" + Convert.ToString(((dynamic)image).GetFITSKey("YBINNING"));
+            //ImageCCDTemp = Convert.ToString(((dynamic)image).GetFITSKey("SET-TEMP"));
+            string xBinStr = image.GetFITSKey("XBINNING").ToString();
+            string yBinStr = image.GetFITSKey("YBINNING").ToString();
+            string tempStr = image.GetFITSKey("SET-TEMP").ToString("0"); ;
+            LocalBinPath = xBinStr + "X" + yBinStr;
+            ImageCCDTemp = tempStr;
+            // Step B:  make sure the directory tree exists, create it if it doesn't
+            bool existresult = Directory.Exists(BiasCalPath + @"\" + LocalBinPath);
+            if (!existresult)
+            {
+                Directory.CreateDirectory(BiasCalPath + @"\" + LocalBinPath);
+            }
+            existresult = Directory.Exists(BiasCalPath + @"\" + LocalBinPath);
+            if (!existresult)
+            {
+                Directory.CreateDirectory(BiasCalPath + @"\" + LocalBinPath);
+            }   // Open TSX object
+            // Step
+            string biasfilename = "Bias." + "B" + LocalBinPath + ".T" + ImageCCDTemp + "." + SeqNum.ToString();
+            // Tell TSX what the filepath is going to be
+            string tsxPath = BiasCalPath + @"\" + LocalBinPath + @"\" + biasfilename + ".FITS";
+            image.SaveFile(tsxPath, MaxIm.ImageFormatType.mxFITS, false, MaxIm.PixelDataFormatType.mx16BitPF);
+            string result = "Writing: " + tsxPath;
+            // increment sequence number
+            SeqNum += 1;
+            Status.LogIt(result);
+            return result;
+        }
+
+        public string DarkImageStoreTSX(ccdsoftImage tsxi)
         {
             // Stores the current active TSX image as designated dark file
             // Step A:  attach the active image and generate directory and file name strings from the FITS information
             // Three strings are needed:  one for exposure, one for the binning, one for temperature
             LogEvent Status = new LogEvent();
-            ccdsoftImage tsxi = new ccdsoftImage();
+            var attachresult = ((dynamic)tsxi).AttachToActiveImager();
+            LocalExpPath = Convert.ToString(((dynamic)tsxi).FITSKeyword("EXPTIME"));
+            LocalBinPath = Convert.ToString(((dynamic)tsxi).FITSKeyword("XBINNING")) + "X" + Convert.ToString(((dynamic)tsxi).FITSKeyword("YBINNING"));
+            ImageCCDTemp = Convert.ToString(((dynamic)tsxi).FITSKeyword("SET-TEMP"));
+            // Step B:  make sure the directory tree exists, create it if it doesn't
+            bool existresult = Directory.Exists(DarkCalPath + @"\" + LocalBinPath);
+            if (!existresult)
+            {
+                Directory.CreateDirectory(DarkCalPath + @"\" + LocalBinPath);
+            }
+            existresult = Directory.Exists(DarkCalPath + @"\" + LocalBinPath + @"\" + LocalExpPath);
+            if (!existresult)
+            {
+                Directory.CreateDirectory(DarkCalPath + @"\" + LocalBinPath + @"\" + LocalExpPath);
+            }   // Open TSX object
+            // Step
+            string darkfilename = "Dark." + "B" + LocalBinPath + ".E" + LocalExpPath + ".T" + ImageCCDTemp + "." + SeqNum.ToString();
+            // Tell TSX what the filepath is going to be
+            string tsxPath = DarkCalPath + @"\" + LocalBinPath + @"\" + LocalExpPath + @"\" + darkfilename + ".FITS";
+            tsxi.Path = tsxPath;
+            string result = "Writing: " + tsxPath;
+            var savestatus = tsxi.Save();
+            // increment sequence number
+            SeqNum += 1;
+            Status.LogIt(result);
+
+            return result;
+        }
+
+        public string DarkImageStoreMDL(MaxIm.Application mdl_app)
+        {
+            // Stores the current active TSX image as designated dark file
+            // Step A:  attach the active image and generate directory and file name strings from the FITS information
+            // Three strings are needed:  one for exposure, one for the binning, one for temperature
+            LogEvent Status = new LogEvent();
+            MaxIm.Document image = mdl_app.CurrentDocument;
+            //LocalExpPath = Convert.ToString(((dynamic)image).GetFITSKey("EXPTIME"));
+            //LocalBinPath = Convert.ToString(((dynamic)image).GetFITSKey("XBINNING")) + "X" + Convert.ToString(((dynamic)image).FITSKeyword("YBINNING"));
+            //ImageCCDTemp = Convert.ToString(((dynamic)image).FITSKeyword("SET-TEMP"));
+            string expTimeStr = image.GetFITSKey("EXPTIME").ToString("0");
+            string xBinStr = image.GetFITSKey("XBINNING").ToString();
+            string yBinStr = image.GetFITSKey("YBINNING").ToString();
+            string tempStr = image.GetFITSKey("SET-TEMP").ToString("0");
+            LocalExpPath = expTimeStr;
+            LocalBinPath = xBinStr + "X" + yBinStr;
+            ImageCCDTemp = tempStr;
+
+            // Step B:  make sure the directory tree exists, create it if it doesn't
+            bool existresult = Directory.Exists(DarkCalPath + @"\" + LocalBinPath);
+            if (!existresult)
+            {
+                Directory.CreateDirectory(DarkCalPath + @"\" + LocalBinPath);
+            }
+            existresult = Directory.Exists(DarkCalPath + @"\" + LocalBinPath + @"\" + LocalExpPath);
+            if (!existresult)
+            {
+                Directory.CreateDirectory(DarkCalPath + @"\" + LocalBinPath + @"\" + LocalExpPath);
+            }   // Open TSX object
+            // Step
+            string darkfilename = "Dark." + "B" + LocalBinPath + ".E" + LocalExpPath + ".T" + ImageCCDTemp + "." + SeqNum.ToString();
+            // Tell TSX what the filepath is going to be
+            string tsxPath = DarkCalPath + @"\" + LocalBinPath + @"\" + LocalExpPath + @"\" + darkfilename + ".FITS";
+            image.SaveFile(tsxPath, MaxIm.ImageFormatType.mxFITS, false, MaxIm.PixelDataFormatType.mx16BitPF);
+            string result = "Writing: " + tsxPath;
+            // increment sequence number
+            SeqNum += 1;
+            Status.LogIt(result);
+
+            return result;
+        }
+
+        public string FlatImageStoreTSX(ccdsoftImage tsxi, string filterName)
+        {
+            // Stores the current active TSX image as designated dark file
+            // Step A:  attach the active image and generate directory and file name strings from the FITS information
+            // Three strings are needed:  one for exposure, one for the binning, one for temperature
+            LogEvent Status = new LogEvent();
             var attachresult = ((dynamic)tsxi).AttachToActiveImager();
             // Step B:  make sure the directory tree exists, create it if it doesn't
             // Create path strings
@@ -201,6 +289,35 @@ namespace CalFrameFactory
             tsxi.Path = tsxPath;
             string result = "Writing: " + tsxPath;
             var savestatus = tsxi.Save();
+            // increment sequence number
+            SeqNum += 1;
+            Status.LogIt(result);
+            return result;
+        }
+
+        public string FlatImageStoreMDL(MaxIm.Application mdl_app, string filterName)
+        {
+            // Stores the current active TSX image as designated dark file
+            // Step A:  attach the active image and generate directory and file name strings from the FITS information
+            // Three strings are needed:  one for exposure, one for the binning, one for temperature
+            LogEvent Status = new LogEvent();
+            MaxIm.Document image = mdl_app.CurrentDocument;
+            var attachresult = ((dynamic)image).AttachToActiveImager();
+            // Step B:  make sure the directory tree exists, create it if it doesn't
+            // Create path strings
+            string flatDatePath = FlatCalPath + @"\" + SessionDateString;
+
+            bool existresult = Directory.Exists(flatDatePath);
+            if (!existresult)
+            {
+                Directory.CreateDirectory(flatDatePath);
+            }
+            // Step
+            string flatFilename = filterName + ".Flat." + SeqNum.ToString();
+            // Tell TSX what the filepath is going to be
+            string tsxPath = FlatCalPath + @"\" + SessionDateString + @"\" + flatFilename + ".FITS";
+            image.SaveFile(tsxPath, MaxIm.ImageFormatType.mxFITS, false, MaxIm.PixelDataFormatType.mx16BitPF);
+            string result = "Writing: " + tsxPath;
             // increment sequence number
             SeqNum += 1;
             Status.LogIt(result);
