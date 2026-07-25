@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CalFrameFactory.Properties;
+using MaxIm;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -6,7 +8,6 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using MaxIm;
 
 namespace CalFrameFactory
 {
@@ -37,13 +38,14 @@ namespace CalFrameFactory
         public ImagingMDL()
         {
             mdl_app = new MaxIm.Application();
-            //mdl_doc = new MaxIm.Document();
             mdl_cam = new CCDCamera();
 
             mdl_cam.LinkEnabled = sbyteTrue;
             System.Threading.Thread.Sleep(10000);  //Wait for camera to initialize
 
             mdl_cam.ReadoutMode = sbyteHighGainStackPro;
+            mdl_cam.SetFullFrame();
+            //store the current settings
             binningXstate = mdl_cam.BinX;
             binningYstate = mdl_cam.BinY;
             exposurestate = mdl_cam.ExposureTime;
@@ -215,7 +217,12 @@ namespace CalFrameFactory
             if (WaitImaging())
             {
                 Document mdl_doc = mdl_app.CurrentDocument;
-                var imageInfo = mdl_doc.CalcAreaInfo(0, 0, 4096, 4096);
+                var imageInfo = mdl_doc.CalcAreaInfo(
+                    (short)mdl_cam.StartX,
+                    (short)mdl_cam.StartY,
+                    (short)(mdl_cam.StartX + mdl_cam.NumX),
+                    (short)(mdl_cam.StartY + mdl_cam.NumY),
+                    0);
                 int avgADU = imageInfo[2];
                 lg.LogIt("Flat Imaged " + Filters.LookUpFilterName(fltr) + " filter at " + cfg.Binning + " binning for " + avgADU.ToString() + " average ADU");
                 lg.LogIt("Sample Flat Sample Done: Average ADU = " + avgADU.ToString("0"));

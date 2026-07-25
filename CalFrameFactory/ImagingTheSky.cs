@@ -166,7 +166,9 @@ namespace CalFrameFactory
             tsx_cc.Asynchronous = 0;
             tsx_cc.ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone;
             tsx_cc.Subframe = 0;
-
+            //Wait for all the camera settings to be applied before taking the image
+            System.Threading.Thread.Sleep(2000);
+            //Take the image and wait for it to complete
             tsx_cc.TakeImage();
             while (tsx_cc.State == TheSky64Lib.ccdsoftCameraState.cdStateTakePicture)
             {
@@ -176,7 +178,7 @@ namespace CalFrameFactory
                     tsx_cc.Abort();
                     return;
                 }
-                System.Threading.Thread.Sleep(1000);
+                System.Threading.Thread.Sleep(2000);
             }
             // Save the using the PreStack manager if checked,
             // Otherwise TSX will do what TSX does.
@@ -208,7 +210,9 @@ namespace CalFrameFactory
             tsx_cc.Asynchronous = 0;
             tsx_cc.ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone;
             tsx_cc.Subframe = 0;
-
+            //Wait for all the camera settings to be applied before taking the image
+            System.Threading.Thread.Sleep(2000);
+            //Take the image and wait for it to complete
             tsx_cc.TakeImage();
             while (tsx_cc.State == TheSky64Lib.ccdsoftCameraState.cdStateTakePicture)
             {
@@ -250,7 +254,9 @@ namespace CalFrameFactory
             tsx_cc.Asynchronous = 0;
             tsx_cc.ImageReduction = TheSky64Lib.ccdsoftImageReduction.cdNone;
             tsx_cc.Subframe = 0;
-
+            //Wait for all the camera settings to be applied before taking the image
+            System.Threading.Thread.Sleep(1000);
+            //Take the image and wait for it to complete
             tsx_cc.TakeImage();
             WaitImaging();
             ccdsoftImage tsxi = new ccdsoftImage();

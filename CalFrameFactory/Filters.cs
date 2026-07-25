@@ -19,6 +19,8 @@
 
 using TheSky64Lib;
 using MaxIm;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CalFrameFactory
 {
@@ -36,7 +38,7 @@ namespace CalFrameFactory
             public bool FilterActive { get; set; }
         }
 
-        public static string[] FilterNameSet()
+        public static List<string> FilterNameSet()
         {
             Configuration cfg = new Configuration();
             if (cfg.ImagingApplication == Configuration.ImagingApp.TS)
@@ -46,7 +48,7 @@ namespace CalFrameFactory
         }
 
 
-        public static string[] FilterNameSetTSX()
+        public static List<string> FilterNameSetTSX()
         {
             //Figure out the filter mapping
             //Find the filter name for the filter filter Number
@@ -57,18 +59,21 @@ namespace CalFrameFactory
             string[] TSXFilterList = new string[filterCount];
             for (int f = 0; f < filterCount; f++)
                 TSXFilterList[f] = (tsx_cc.szFilterName(f));
-            return TSXFilterList;
+            return TSXFilterList.ToList();
         }
 
-        public static string[] FilterNameSetMDL()
+        public static List<string> FilterNameSetMDL()
         {
             //Figure out the filter mapping
             //Find the filter name for the filter filter Number
             CCDCamera ccdc = new CCDCamera();
+            List<string> MDLFilterListStr = new List<string>();
             try { ccdc.LinkEnabled = sbyteTrue; }
             catch { return null; }
             var MDLFilterList = ccdc.FilterNames;
-            return MDLFilterList;
+            foreach (var filterName in MDLFilterList)
+                MDLFilterListStr.Add(filterName.ToString());
+            return MDLFilterListStr;
         }
 
         public static string LookUpFilterName(int filterIndex)
@@ -97,10 +102,10 @@ namespace CalFrameFactory
 
         public static int? LookUpFilterIndex(string filterName)
         {
-            string[] fnl = FilterNameSet();
+            List<string> fnl = FilterNameSet();
             if (fnl == null)
                 return null;
-            for (int i = 0; i < fnl.Length; i++)
+            for (int i = 0; i < fnl.Count; i++)
                 if (fnl[i].Contains(filterName))
                     return i;
             return null;

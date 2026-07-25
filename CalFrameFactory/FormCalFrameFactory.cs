@@ -218,11 +218,12 @@ namespace CalFrameFactory
         {
             Configuration cfg = new Configuration();
             //Fill in filter selection
+            FilterFill();
             List<Filters.ActiveFilter> chkList = cfg.FlatFilters;
             //Fill in filter choices
             if (chkList.Count > 0)
             {
-                if (Filters.FilterNameSet().Length > 0)
+                if (Filters.FilterNameSet().Count > 0)
                     foreach (string f in Filters.FilterNameSet())
                         FlatFilterListBox.Items.Add(f, chkList.Exists(x => x.FilterName == f));
             }
@@ -290,6 +291,7 @@ namespace CalFrameFactory
             lg.LogIt("Setting camera temperature to " + camTemp.ToString() + " degrees C");
             if (useTSX)
             {
+                tsxApp.Connect();
                 tsxApp.SetCCDTemperature(camTemp);
                 double near = Math.Abs(camTemp * 0.9);
                 if (near == 0)
@@ -303,6 +305,7 @@ namespace CalFrameFactory
             }
             else
             {
+                mdlApp.Connect();
                 mdlApp.SetCCDTemperature(camTemp);
                 double near = Math.Abs(camTemp * 0.9);
                 if (near == 0)
@@ -454,7 +457,7 @@ namespace CalFrameFactory
                 else
                     lg.LogIt("No Flat frames to image");
 
-            } while (BiasCountBox.Value > 0 || DarksCountBox.Value > 0);
+            } while (BiasCountBox.Value > 0 || DarksCountBox.Value > 0 || FlatsCountBox.Value >0);
 
             FlatsCountBox.ForeColor = Color.Green;
         }
@@ -1021,6 +1024,12 @@ namespace CalFrameFactory
 
         private void FlatFilterListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            FilterFill();
+        }
+
+        private void FilterFill()
+            {
+            
             Configuration cfg = new Configuration();
             //If the list is empty, try to fill in filter selection
             if (FlatFilterListBox.Items.Count == 0)
@@ -1028,12 +1037,12 @@ namespace CalFrameFactory
                 List<Filters.ActiveFilter> chkList = cfg.FlatFilters;
                 //Fill in filter choices
 
-                if (Filters.FilterNameSet().Length > 0)
+                if (Filters.FilterNameSet().Count > 0)
                     foreach (string f in Filters.FilterNameSet())
                         FlatFilterListBox.Items.Add(f, chkList.Exists(x => x.FilterName == f));
                 else
                 {
-                    MessageBox.Show("No Filters have been configured in TSX.  " +
+                    MessageBox.Show("No Filters have been configured in TSX/MDL.  " +
                     "Set up filters and restart Calibration Frame Factory.  " +
                     "Calibration Frame Factory will exit.",
                     "Initialization Error");
